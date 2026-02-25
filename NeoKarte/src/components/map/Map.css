@@ -1,0 +1,10 @@
+.mapMain{
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 65%;
+    padding: 0vh;
+    margin: 0;
+    border: solid;
+    background-color: rgb(85, 114, 104);
+}

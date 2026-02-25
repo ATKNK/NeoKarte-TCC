@@ -1,0 +1,12 @@
+.appMain{
+    background-color: rgb(114, 84, 18);
+    display: flex;
+    flex-direction: column;
+}
+
+.bodyMain{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5vh;
+}
