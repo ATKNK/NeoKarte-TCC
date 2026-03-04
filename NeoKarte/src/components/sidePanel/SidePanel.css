@@ -1,0 +1,43 @@
+.sidePanelMain{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: cornsilk;
+    border: solid;
+    border-left: 0;
+    padding: 2vh;
+    width: 35vh;
+    height: 100;
+    overflow-y: scroll;
+}
+
+.sidePanelYear{
+    font-size: xx-large;
+    font-weight: bolder;
+}
+
+.countryPanel{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3vh;
+}
+
+.countryName{
+    text-align: center;
+    font-size: large;
+}
+
+.countryFlag{
+    width: 25vh;
+}
+
+.panelLabel{
+    font-size: large;
+    font-weight: bold;
+}
+
+.leaderPortrait{
+    height: 22vh;
+}
