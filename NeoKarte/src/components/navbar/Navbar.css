@@ -1,5 +1,11 @@
+@import "tailwindcss";
+
 .navbarMain{
     background-color: #44351e;
     color: gold;
     padding: 3vh;
+}
+
+.navbarTitle{
+    @apply text-3xl font-bold;
 }
