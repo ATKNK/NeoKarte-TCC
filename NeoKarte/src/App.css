@@ -6,5 +6,5 @@
 }
 
 .bodyMain{
-    @apply flex items-stretch m-[5vh]
+    @apply flex justify-center items-stretch m-[5vh]
 }
