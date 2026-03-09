@@ -19,7 +19,7 @@ function SidePanel(props) {
 
 
                 <img className='leaderPortrait' src='https://upload.wikimedia.org/wikipedia/commons/7/79/Hans_Burgkmair_d._%C3%84._%28zugeschr.%29_-_Bildnis_Kaiser_Friedrich_III.jpg'></img>
-                <p>{props.leader}</p>
+                <p className='leaderName'>{props.leader}</p>
             </div>
         </div>
     )

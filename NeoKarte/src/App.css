@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+:root{
+  --map-height: 99.8vh;
+}
+
 .appMain{
     background-color: rgb(114, 84, 18);
     @apply flex flex-col min-h-screen box-border;

@@ -1,6 +1,7 @@
 .mapMain {
     background-color: rgb(85, 114, 104);
-    @apply flex justify-end items-center w-2/3 p-[0] m-[0] border-2;
+    @apply flex justify-end items-center w-3/4 p-[0] m-[0] border-2;
+    height: var(--map-height);  
 }
 
 .mapMain svg {
@@ -15,4 +16,5 @@ path{
 .country:hover{
     filter: brightness(125%);
     transition: 0.2s;
+    cursor: pointer
 }
