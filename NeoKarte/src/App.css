@@ -1,7 +1,11 @@
+@import "tailwindcss";
+
 .appMain{
     background-color: rgb(114, 84, 18);
     display: flex;
     flex-direction: column;
+    height: 100%;
+    box-sizing: border-box;
 }
 
 .bodyMain{
