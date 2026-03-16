@@ -2,6 +2,7 @@
 
 :root{
   --map-height: 99.8vh;
+  overflow-x: hidden;
 }
 
 .appMain{
@@ -10,5 +11,13 @@
 }
 
 .bodyMain{
+    @apply flex flex-col min-h-screen m-5
+}
+
+.mapAndPanel{
     @apply flex justify-center items-stretch m-[5vh]
+}
+
+.timeline{
+    @apply flex flex-row justify-around w-screen
 }

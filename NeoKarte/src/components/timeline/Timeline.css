@@ -1,0 +1,26 @@
+.timelineMain{
+    display: flex;
+    flex-direction: column;
+    width: 65vh;
+}
+
+.timelineButton{
+    font-size: large;
+    color: gold;
+    background-color: rgb(52, 49, 78);
+    padding: 1vh;
+    border: solid black;
+    border-radius: 2vh;
+    cursor: pointer;
+}
+
+.timelineLabels{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    width: 100%;
+}
+
+#timelineRange{
+    width: 100%;
+}
