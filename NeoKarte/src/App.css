@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
 :root{
-  --map-height: 99.8vh;
   overflow-x: hidden;
 }
 
@@ -15,7 +14,7 @@
 }
 
 .mapAndPanel{
-    @apply flex justify-center items-stretch m-[5vh]
+    @apply flex justify-center items-stretch m-[2vh]
 }
 
 .timeline{
