@@ -7,6 +7,7 @@ import Timeline from './components/timeline/Timeline';
 
 function App() {
   const [year, setYear] = useState(1444);
+  const [selectedCountry, setSelectedCountry] = useState(null);
 
   return (
     <>
@@ -14,15 +15,11 @@ function App() {
         <Navbar />
         <div className='bodyMain'>
           <div className='mapAndPanel'>
-            <Map year={year} />
+            <Map year={year} onCountrySelect={setSelectedCountry}/>
 
             <SidePanel
               year={year}
-              name="Archduchy of Austria"
-              nameLocal="Erzherzogtum Österreich"
-              capital="Vienna"
-              govt="Feudal Monarchy"
-              leader="Friedrich III von Habsburg"
+              {...selectedCountry}
             />
           </div>
           <div className='timeline'>
