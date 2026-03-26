@@ -1,0 +1,69 @@
+{
+    "IBERIA": {
+        "CAS": {
+            "name": "Castela",
+            "tag": "CAS",
+            "capital": "Madrid",
+            "fullName": "Reino de Castela",
+            "fullNameLocal": "Reino de Castilla",
+            "govt": "Monarquia Feudal",
+            "leader": ""
+        },
+        "POR": {
+            "name": "Portugal",
+            "tag": "POR",
+            "capital": "Lisboa",
+            "fullName": "Reino de Portugal",
+            "fullNameLocal": "Reino de Portugal",
+            "govt": "Monarquia Feudal",
+            "leader": ""
+        },
+        "NAV": {
+            "name": "Navarra",
+            "tag": "NAV",
+            "capital": "Pamplona",
+            "fullName": "Reino de Navarra",
+            "fullNameLocal": "Nafarroako Erresuma",
+            "govt": "Monarquia Feudal",
+            "leader": ""
+        },
+        "ARA": {
+            "name": "Aragão",
+            "tag": "ARA",
+            "capital": "Valência",
+            "fullName": "Reino de Aragão",
+            "fullNameLocal": "Reino d'Aragón",
+            "govt": "Monarquia Feudal",
+            "leader": ""
+        },
+        "GRA": {
+            "name": "Granada",
+            "tag": "GRA",
+            "capital": "Granada",
+            "fullName": "Emirado de Granada",
+            "fullNameLocal": "Imārat Ġarnāṭah",
+            "govt": "Emirado",
+            "leader": ""
+        }
+    },
+    "FRANCE": {
+        "FRA": {
+            "name": "França",
+            "tag": "FRA",
+            "capital": "Paris",
+            "fullName": "Reino da França",
+            "fullNameLocal": "Royaulme de France",
+            "govt": "Monarquia Feudal",
+            "leader": ""
+        },
+        "BRI": {
+            "name": "Bretanha",
+            "tag": "BRI",
+            "capital": "Naoned",
+            "fullName": "Ducado da Bretanha",
+            "fullNameLocal": "Dugelezh Breizh",
+            "govt": "Monarquia Feudal",
+            "leader": ""
+        }
+    }
+}
