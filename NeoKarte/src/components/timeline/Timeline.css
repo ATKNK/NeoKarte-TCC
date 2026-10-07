@@ -1,29 +1,55 @@
-.timelineMain{
+.timelineMain {
     display: flex;
     flex-direction: column;
-    width: 65vh;
+    width: 90vh;
 }
 
-.timelineButton{
+.timelineButton {
     font-size: large;
     color: gold;
     background-color: rgb(52, 49, 78);
-    padding-left: 1vh;
-    padding-right: 1vh;
-    padding-top: 0.5vh;
-    padding-bottom: 0.5vh;
+    padding: 0.5vh 1vh;
     border: solid black;
     border-radius: 2vh;
     cursor: pointer;
 }
 
-.timelineLabels{
+.timelineButton:hover{
+    filter: brightness(150%);
+    transition: 0.5s;
+}
+
+
+.timelineLabels {
     display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
     width: 100%;
+}
+
+.timelineLabels > * {
+    flex: 1;
+    display: flex;
+    justify-content: center;
 }
 
 #timelineRange{
     width: 100%;
+    margin: 0;
+}
+
+.timelineYearMain{
+    display: flex;
+    flex-direction: column;
+}
+
+.timelineYearDesc{
+    font-size: small;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.timelineYearIcon{
+    width: 5vh;
+    fill: gold;
 }
