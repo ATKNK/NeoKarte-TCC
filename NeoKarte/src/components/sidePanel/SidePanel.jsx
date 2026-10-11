@@ -30,7 +30,7 @@ function SidePanel({ year, tag, name, fullName, fullNameLocal, capital, govt, le
                 <p>{govt}</p>
 
 
-                <img className='leaderPortrait' alt={`Portrait of ${leader}`} src={``}/>
+                <img className='leaderPortrait' src={`leaders/${tag} ${leader}.png`} alt={`Portrait of ${leader}`}/>
                 <p className='leaderName'>{leader}</p>
             </div>
         </div>

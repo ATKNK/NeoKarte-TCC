@@ -12,7 +12,7 @@ function App() {
   return (
     <>
       <div className='appMain'>
-        <Navbar />
+        <Navbar/>
         <div className='bodyMain'>
           <div className='mapAndPanel'>
             <Map year={year} onCountrySelect={setSelectedCountry}/>

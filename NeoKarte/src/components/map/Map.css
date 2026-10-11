@@ -1,5 +1,5 @@
 .mapMain {
-    background-color: rgb(85, 114, 104);
+    background-color: #4c8577;
     @apply flex justify-end items-center w-3/4 p-[0] m-[0] border-2;  
 }
 
