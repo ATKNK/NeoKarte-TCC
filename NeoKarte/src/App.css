@@ -2,10 +2,11 @@
 
 :root{
   overflow-x: hidden;
+  --text-color: #F5F5F5;
 }
 
 .appMain{
-    background-color: #201E00;
+    background-color: #332412;
     @apply flex flex-col min-h-screen box-border;
 }
 

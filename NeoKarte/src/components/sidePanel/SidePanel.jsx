@@ -1,6 +1,6 @@
 import './SidePanel.css';
 
-function SidePanel({ year, tag, name, fullName, fullNameLocal, capital, govt, leader }) {
+function SidePanel({ year, tag, name, fullName, fullNameLocal, capital, govt, leader, flag }) {
 
     if (!name) {
         return (
@@ -18,10 +18,12 @@ function SidePanel({ year, tag, name, fullName, fullNameLocal, capital, govt, le
             <header className='sidePanelYear'>{year}</header>
             <div className='countryPanel'>
 
+                <p className='countryMainName'>{name}</p>
+
+                <img className='countryFlag' alt={`Flag of ${tag}`} src={flag || `/flags/${tag}.png`} />
+
                 <p className='countryName'>{fullName}</p>
                 <p className='countryName'>{fullNameLocal}</p>
-
-                <img className='countryFlag' alt={`Flag of${name}`} src={`flags/${tag}.png`} />
 
                 <p className='panelLabel'>Capital:</p>
                 <p>{capital}</p>

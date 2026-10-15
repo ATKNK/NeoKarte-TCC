@@ -1,14 +1,14 @@
-.sidePanelMain{
+.sidePanelMain {
     @apply flex flex-col items-center border-2 border-l-0 bg-[cornsilk] w-[35vh] overflow-y-auto;
     height: var(--map-height);
 }
 
-.sidePanelYear{
+.sidePanelYear {
     font-size: xx-large;
     font-weight: bolder;
 }
 
-.countryPanel{
+.countryPanel {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -16,24 +16,30 @@
     padding: 3vh;
 }
 
-.countryName{
+.countryMainName {
+    text-align: center;
+    font-size: xx-large;
+    font-weight: bolder;
+}
+
+.countryName {
     text-align: center;
     font-size: large;
 }
 
-.countryFlag{
+.countryFlag {
     width: 25vh;
 }
 
-.panelLabel{
+.panelLabel {
     font-size: large;
     font-weight: bold;
 }
 
-.leaderPortrait{
+.leaderPortrait {
     height: 22vh;
 }
 
-.leaderName{
+.leaderName {
     @apply flex justify-center text-center
 }

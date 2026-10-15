@@ -1,33 +1,23 @@
-import { useState } from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import './App.css';
 import Navbar from './components/navbar/Navbar';
-import Map from './components/map/Map';
-import SidePanel from './components/sidePanel/SidePanel';
-import Timeline from './components/timeline/Timeline';
+import MainMap from './pages/mainMap/mainMap';
+import CountryManager from './pages/countryManager/countryManager';
 
 function App() {
-  const [year, setYear] = useState(1444);
-  const [selectedCountry, setSelectedCountry] = useState(null);
-
   return (
-    <>
+    <BrowserRouter>
       <div className='appMain'>
         <Navbar/>
         <div className='bodyMain'>
-          <div className='mapAndPanel'>
-            <Map year={year} onCountrySelect={setSelectedCountry}/>
-
-            <SidePanel
-              year={year}
-              {...selectedCountry}
-            />
-          </div>
-          <div className='timeline'>
-            <Timeline onYearChange={setYear}/>
-          </div>
+          <Routes>
+            <Route path='/' element={<MainMap />} />
+            <Route path='*' element={<Navigate to='/' replace />} />
+            <Route path='/country-manager' element={<CountryManager/>}/>
+          </Routes>
         </div>
       </div>
-    </>
+    </BrowserRouter>
   )
 }
 
