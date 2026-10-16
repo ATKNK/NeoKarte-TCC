@@ -9,7 +9,7 @@ function Map({ year, onCountrySelect }) {
     const MapComponent = maps[key];
 
     async function handleClick(e) {
-        const tag = e.target.closest?.("[id]")?.id;
+        const tag = e.target.closest?.(".country[id]")?.id;
 
         if (!tag) return;
 
