@@ -19,8 +19,7 @@ function Map({ year, onCountrySelect }) {
         if (politicalEra && onCountrySelect) {
             onCountrySelect({
                 ...politicalEra,
-                tag,
-                flag: politicalEra.flag?.image || `/flags/${tag}.png`
+                tag
             });
         }
     }

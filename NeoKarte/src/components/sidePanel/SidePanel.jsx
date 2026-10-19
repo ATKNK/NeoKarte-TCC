@@ -1,6 +1,37 @@
 import './SidePanel.css';
 
-function SidePanel({ year, tag, name, fullName, fullNameLocal, capital, govt, leader, flag }) {
+function SidePanel({
+    year,
+    ...countryData
+}) {
+    const {
+        tag,
+        name,
+        full_name,
+        full_name_local,
+        capitals,
+        government_type,
+        capital,
+        govt,
+        leader,
+        rulers,
+        flag,
+        portrait
+    } = countryData;
+    const capitalNames = capitals
+        ?.filter((item) => item?.name)
+        .map((item) => item.name)
+        .join(', ');
+    const capitalDisplay = capitalNames || capital || '-';
+    const governmentDisplay = government_type?.name || govt || '-';
+
+    const selectedDate = `${year}-11-11`;
+    const activeRuler = rulers?.find(({ start, end }) =>
+        (!start || start <= selectedDate) && (!end || end >= selectedDate)
+    );
+    const leaderName = activeRuler?.person?.name || leader || '-';
+    const leaderImage = portrait || activeRuler?.image;
+    const flagImage = flag?.image || flag;
 
     if (!name) {
         return (
@@ -20,20 +51,31 @@ function SidePanel({ year, tag, name, fullName, fullNameLocal, capital, govt, le
 
                 <p className='countryMainName'>{name}</p>
 
-                <img className='countryFlag' alt={`Flag of ${tag}`} src={flag || `/flags/${tag}.png`} />
+                <img className='countryFlag' alt={`Flag of ${name}`} src={flagImage} />
 
-                <p className='countryName'>{fullName}</p>
-                <p className='countryName'>{fullNameLocal}</p>
+                <p className='countryName'>{full_name}</p>
+                <p className='countryName'>{full_name_local}</p>
 
-                <p className='panelLabel'>Capital:</p>
-                <p>{capital}</p>
+                <div className='countryInfo'>
+                    <div className='countryInfoItem'>
+                        <p className='panelLabel'>Capital:</p>
+                        <p>{capitalDisplay}</p>
+                    </div>
 
-                <p className='panelLabel'>Government:</p>
-                <p>{govt}</p>
+                    <div className='countryInfoItem'>
+                        <p className='panelLabel'>Government:</p>
+                        <p>{governmentDisplay}</p>
+                    </div>
+                </div>
 
-
-                <img className='leaderPortrait' src={`leaders/${tag} ${leader}.png`} alt={`Portrait of ${leader}`}/>
-                <p className='leaderName'>{leader}</p>
+                {leaderName !== '-' && (
+                    <>
+                        {leaderImage && (
+                            <img className='leaderPortrait' src={leaderImage} alt={`Portrait of ${leaderName}`} />
+                        )}
+                        <p className='leaderName'>{leaderName}</p>
+                    </>
+                )}
             </div>
         </div>
     )
