@@ -9,6 +9,7 @@ export async function getAllCountries() {
         return data;
     } catch (e) {
         console.error('Erro ao ler todos os países: ', e);
+        throw e;
     }
 }
 
