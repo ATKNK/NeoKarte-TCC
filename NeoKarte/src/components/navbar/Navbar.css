@@ -1,11 +1,39 @@
 @import "tailwindcss";
 
-.navbarMain{
+.navbarMain {
     background-color: #181600;
     color: gold;
     padding: 3vh;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
 }
 
-.navbarTitle{
+.navbarTitle {
     @apply text-3xl font-bold;
+    display: flex;
+    justify-self: left;
+}
+
+.navbarButtons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    width: 50vh;
+}
+
+.navbarButton {
+    font-size: large;
+    color: gold;
+    background-color: rgb(52, 49, 78);
+    padding: 0.5vh;
+    border: solid black;
+    border-radius: 2vh;
+    cursor: pointer;
+    width: 15vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }

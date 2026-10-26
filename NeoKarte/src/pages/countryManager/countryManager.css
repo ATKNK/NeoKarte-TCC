@@ -6,8 +6,15 @@
 }
 
 .countryManagerTitle {
-    font-size: large;
+    font-size: 2rem;
     font-weight: bolder;
+    text-align: center;
+}
+
+.countryManagerContent {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
 }
 
 .countryManagerSearch {
@@ -15,6 +22,17 @@
     flex-direction: column;
     gap: 0.5rem;
     max-width: 24rem;
+    background-color: cornsilk;
+    color: black;
+    border: solid black 2px;
+    padding: 3vh;
+    width: 50vh;
+}
+
+.countryManagerSearchForm {
+    display: flex;
+    flex-direction: column;
+
 }
 
 .countryManagerSearch input {
@@ -36,7 +54,8 @@
 .countryManagerItem {
     display: flex;
     gap: 0.75rem;
-    align-items: baseline;
+    justify-content: space-around;
+    align-items: center;
 }
 
 .countryManagerItemTag {
@@ -48,7 +67,67 @@
     color: #ffb4ab;
 }
 
-.countryManagerButton{
-    background-color: blue;
+.countryManagerCreate {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 50vh;
+    max-width: 24rem;
+    padding: 3vh;
+    background-color: cornsilk;
+    color: black;
+    border: solid black 2px;
+}
+
+.countryManagerCreate h2 {
+    font-size: 1.35rem;
+    font-weight: bold;
+}
+
+.countryManagerCreateForm {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.countryManagerCreateForm input {
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #b9a98f;
+    border-radius: 0.35rem;
+    color: #241b10;
+}
+
+.countryManagerButton {
+    background-color: rgb(21, 15, 73);
     color: gold;
+    border: solid black;
+    border-radius: 1vh;
+    padding: 1vh;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+}
+
+.countryManagerButton:disabled {
+    cursor: wait;
+    opacity: 0.7;
+}
+
+.countryManagerSuccess {
+    color: #246b32;
+}
+
+@media (max-width: 700px) {
+    .countryManagerContent {
+        align-items: center;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .countryManagerSearch,
+    .countryManagerCreate {
+        width: 100%;
+        max-width: 32rem;
+        box-sizing: border-box;
+    }
 }

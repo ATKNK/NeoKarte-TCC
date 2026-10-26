@@ -29,8 +29,13 @@ function App() {
             />
 
             <Route
-              path="/countries/:tag"
+              path="/countries/:id"
               element={<CountryViewer/>}
+            />
+
+            <Route
+              path="/countries/:id/political_eras"
+              element={<CountryViewer />}
             />
 
             <Route
