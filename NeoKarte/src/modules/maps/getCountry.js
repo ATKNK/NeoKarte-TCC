@@ -89,6 +89,22 @@ export async function createPoliticalEra(countryId, politicalEra) {
     }
 }
 
+export async function createFlag(flag) {
+    try {
+        const formData = new FormData();
+        formData.append('flag[start_date]', flag.start_date);
+        formData.append('flag[end_date]', flag.end_date);
+        formData.append('flag[political_era_id]', flag.political_era_id);
+        formData.append('flag[image]', flag.image);
+
+        const response = await axios.post('http://localhost:3000/flags', formData);
+        return response.data;
+    } catch (e) {
+        console.error('Erro ao criar bandeira: ', e);
+        throw e;
+    }
+}
+
 export async function getDynastyById(id) {
     try {
         const response = await axios.get(`http://localhost:3000/dynasties/${encodeURIComponent(id)}`);

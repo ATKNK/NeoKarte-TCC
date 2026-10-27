@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import {
+    createFlag,
     createPoliticalEra,
     getAllDynasties,
     getAllGovernmentTypes,
@@ -108,6 +109,15 @@ function CountryViewer() {
     const [isCreatingEra, setIsCreatingEra] = useState(false);
     const [createEraError, setCreateEraError] = useState('');
     const [createEraSuccess, setCreateEraSuccess] = useState('');
+    const [newFlag, setNewFlag] = useState({
+        start_date: '',
+        end_date: '',
+        political_era_id: '',
+        image: null,
+    });
+    const [isCreatingFlag, setIsCreatingFlag] = useState(false);
+    const [createFlagError, setCreateFlagError] = useState('');
+    const [createFlagSuccess, setCreateFlagSuccess] = useState('');
 
     useEffect(() => {
         let isMounted = true;
@@ -230,6 +240,60 @@ function CountryViewer() {
             );
         } finally {
             setIsCreatingEra(false);
+        }
+    }
+
+    async function handleCreateFlag(event) {
+        event.preventDefault();
+        const form = event.currentTarget;
+        setCreateFlagError('');
+        setCreateFlagSuccess('');
+
+        if (newFlag.end_date < newFlag.start_date) {
+            setCreateFlagError('A data final deve ser igual ou posterior à data inicial.');
+            return;
+        }
+
+        setIsCreatingFlag(true);
+        try {
+            await createFlag({
+                ...newFlag,
+                political_era_id: String(newFlag.political_era_id),
+            });
+            setNewFlag({
+                start_date: '',
+                end_date: '',
+                political_era_id: '',
+                image: null,
+            });
+            form.reset();
+            setCreateFlagSuccess('Bandeira criada com sucesso.');
+
+            try {
+                const erasResponse = await getPoliticalEras(id);
+                const eras = Array.isArray(erasResponse)
+                    ? erasResponse
+                    : erasResponse?.political_eras ?? erasResponse?.data;
+                if (!Array.isArray(eras)) {
+                    throw new Error('A resposta do servidor não contém uma lista de eras políticas.');
+                }
+                setPoliticalEras(eras);
+            } catch (refreshError) {
+                setCreateFlagError(
+                    `Bandeira criada, mas não foi possível atualizar a lista: ${
+                        refreshError instanceof Error ? refreshError.message : 'Erro desconhecido.'
+                    }`
+                );
+            }
+        } catch (createError) {
+            const responseMessage = createError?.response?.data?.error
+                ?? createError?.response?.data?.message;
+            setCreateFlagError(
+                responseMessage
+                    ?? (createError instanceof Error ? createError.message : 'Erro desconhecido.')
+            );
+        } finally {
+            setIsCreatingFlag(false);
         }
     }
 
@@ -375,6 +439,85 @@ function CountryViewer() {
                         </button>
                         {createEraError && <p className='countryViewerError' role='alert'>{createEraError}</p>}
                         {createEraSuccess && <p className='countryViewerSuccess' role='status'>{createEraSuccess}</p>}
+                    </form>
+                    <form className='countryViewerEraForm' onSubmit={handleCreateFlag}>
+                        <h3>Criar bandeira</h3>
+                        <div className='countryViewerEraFormGrid'>
+                            <label>
+                                Era política *
+                                <select
+                                    name='flag[political_era_id]'
+                                    value={newFlag.political_era_id}
+                                    onChange={(event) => setNewFlag((current) => ({
+                                        ...current,
+                                        political_era_id: event.target.value,
+                                    }))}
+                                    required
+                                    disabled={isCreatingFlag || politicalEras.length === 0}
+                                >
+                                    <option value=''>Selecione uma era política</option>
+                                    {politicalEras.map((era) => (
+                                        <option key={era.id} value={era.id}>
+                                            {era.name ?? `Era política ${era.id}`}
+                                        </option>
+                                    ))}
+                                </select>
+                            </label>
+                            <label>
+                                Data inicial *
+                                <input
+                                    type='date'
+                                    name='flag[start_date]'
+                                    value={newFlag.start_date}
+                                    onChange={(event) => setNewFlag((current) => ({
+                                        ...current,
+                                        start_date: event.target.value,
+                                    }))}
+                                    required
+                                    disabled={isCreatingFlag}
+                                />
+                            </label>
+                            <label>
+                                Data final *
+                                <input
+                                    type='date'
+                                    name='flag[end_date]'
+                                    value={newFlag.end_date}
+                                    onChange={(event) => setNewFlag((current) => ({
+                                        ...current,
+                                        end_date: event.target.value,
+                                    }))}
+                                    required
+                                    disabled={isCreatingFlag}
+                                />
+                            </label>
+                            <label>
+                                Imagem *
+                                <input
+                                    type='file'
+                                    name='flag[image]'
+                                    accept='image/*'
+                                    onChange={(event) => setNewFlag((current) => ({
+                                        ...current,
+                                        image: event.target.files?.[0] ?? null,
+                                    }))}
+                                    required
+                                    disabled={isCreatingFlag}
+                                />
+                            </label>
+                        </div>
+                        <button
+                            className='countryViewerSubmitButton'
+                            type='submit'
+                            disabled={isCreatingFlag || politicalEras.length === 0}
+                        >
+                            {isCreatingFlag ? 'Criando...' : 'Criar bandeira'}
+                        </button>
+                        {politicalEras.length === 0 && (
+                            <p>Crie uma era política antes de cadastrar uma bandeira.</p>
+                        )}
+                        {createFlagError && <p className='countryViewerError' role='alert'>{createFlagError}</p>}
+                        {createFlagSuccess && <p className='countryViewerSuccess' role='status'>{createFlagSuccess}</p>}
                     </form>
                     {politicalEras.length ? (
                         <div className='countryViewerEraList'>
