@@ -12,6 +12,7 @@ import Navbar from './components/navbar/Navbar';
 import MainMap from './pages/mainMap/mainMap';
 import CountryManager from './pages/countryManager/countryManager';
 import CountryViewer from './pages/countryViewer/countryViewer';
+import PeopleManager from './pages/peopleManager/peopleManager';
 
 function App() {
   return (
@@ -30,13 +31,17 @@ function App() {
 
             <Route
               path="/countries/:id"
-              element={<CountryViewer/>}
+              element={<CountryViewer />}
             />
 
             <Route
               path="/countries/:id/political_eras"
               element={<CountryViewer />}
             />
+
+            <Route
+              path='/people-manager'
+              element={<PeopleManager />} />
 
             <Route
               path="*"

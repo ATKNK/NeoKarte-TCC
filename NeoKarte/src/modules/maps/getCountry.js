@@ -105,6 +105,60 @@ export async function createFlag(flag) {
     }
 }
 
+export async function createCapital(capital) {
+    try {
+        const response = await axios.post('http://localhost:3000/capitals', { capital });
+        return response.data;
+    } catch (e) {
+        console.error('Erro ao criar capital: ', e);
+        throw e;
+    }
+}
+
+export async function createRuler(ruler) {
+    try {
+        const response = await axios.post('http://localhost:3000/rulers', { ruler });
+        return response.data;
+    } catch (e) {
+        console.error('Erro ao criar líder: ', e);
+        throw e;
+    }
+}
+
+export async function createPortrait(portrait) {
+    try {
+        const formData = new FormData();
+        formData.append('portrait[ruler_id]', portrait.ruler_id);
+        formData.append('portrait[image]', portrait.image);
+
+        const response = await axios.post('http://localhost:3000/portraits', formData);
+        return response.data;
+    } catch (e) {
+        console.error('Erro ao criar retrato: ', e);
+        throw e;
+    }
+}
+
+export async function getAllPeople() {
+    try {
+        const response = await axios.get('http://localhost:3000/people');
+        return response.data;
+    } catch (e) {
+        console.error('Erro ao ler todas as pessoas: ', e);
+        throw e;
+    }
+}
+
+export async function createPerson(person) {
+    try {
+        const response = await axios.post('http://localhost:3000/people', { person });
+        return response.data;
+    } catch (e) {
+        console.error('Erro ao criar pessoa: ', e);
+        throw e;
+    }
+}
+
 export async function getDynastyById(id) {
     try {
         const response = await axios.get(`http://localhost:3000/dynasties/${encodeURIComponent(id)}`);

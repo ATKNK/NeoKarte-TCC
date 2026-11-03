@@ -7,6 +7,7 @@ function Navbar(props) {
             <div className='navbarButtons'>
                 <a className='navbarButton' href='/'>Map</a>
                 <a className='navbarButton' href='/country-manager'>Country Manager</a>
+                <a className='navbarButton' href='/people-manager'>People Manager</a>
             </div>
             <p>{props.teste} </p>
         </nav>

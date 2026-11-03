@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import {
+    createCapital,
     createFlag,
     createPoliticalEra,
+    createPortrait,
+    createRuler,
     getAllDynasties,
     getAllGovernmentTypes,
+    getAllPeople,
     getCountryById,
     getPoliticalEras,
 } from '../../modules/maps/getCountry';
@@ -15,6 +19,13 @@ function getFlagImage(flag) {
         return flag;
     }
     return flag?.image;
+}
+
+function getPortraitImage(portrait) {
+    if (typeof portrait === 'string') {
+        return portrait;
+    }
+    return portrait?.image;
 }
 
 function formatDateRange(startDate, endDate) {
@@ -118,6 +129,30 @@ function CountryViewer() {
     const [isCreatingFlag, setIsCreatingFlag] = useState(false);
     const [createFlagError, setCreateFlagError] = useState('');
     const [createFlagSuccess, setCreateFlagSuccess] = useState('');
+    const [newCapital, setNewCapital] = useState({
+        name: '',
+        start_date: '',
+        end_date: '',
+        political_era_id: '',
+        startdate_approximate: false,
+        enddate_approximate: false,
+    });
+    const [isCreatingCapital, setIsCreatingCapital] = useState(false);
+    const [createCapitalError, setCreateCapitalError] = useState('');
+    const [createCapitalSuccess, setCreateCapitalSuccess] = useState('');
+    const [people, setPeople] = useState([]);
+    const [newRuler, setNewRuler] = useState({
+        political_era_id: '',
+        person_id: '',
+        start: '',
+        end: '',
+        startdate_approximate: false,
+        enddate_approximate: false,
+        image: null,
+    });
+    const [isCreatingRuler, setIsCreatingRuler] = useState(false);
+    const [createRulerError, setCreateRulerError] = useState('');
+    const [createRulerSuccess, setCreateRulerSuccess] = useState('');
 
     useEffect(() => {
         let isMounted = true;
@@ -138,25 +173,33 @@ function CountryViewer() {
                 }
 
                 if (isPoliticalErasPage) {
-                    const [erasResponse, dynastyResponse, governmentTypeResponse] = await Promise.all([
+                    const [erasResponse, dynastyResponse, governmentTypeResponse, peopleResponse] = await Promise.all([
                         getPoliticalEras(id),
                         getAllDynasties(),
                         getAllGovernmentTypes(),
+                        getAllPeople(),
                     ]);
                     const eras = Array.isArray(erasResponse)
                         ? erasResponse
                         : erasResponse?.political_eras ?? erasResponse?.data;
+                    const peopleData = Array.isArray(peopleResponse)
+                        ? peopleResponse
+                        : peopleResponse?.people ?? peopleResponse?.data;
                     if (!Array.isArray(eras)) {
                         throw new Error('A resposta do servidor não contém uma lista de eras políticas.');
                     }
                     if (!Array.isArray(dynastyResponse) || !Array.isArray(governmentTypeResponse)) {
                         throw new Error('Não foi possível carregar as opções de dinastia e tipo de governo.');
                     }
+                    if (!Array.isArray(peopleData)) {
+                        throw new Error('A resposta do servidor não contém uma lista de pessoas.');
+                    }
 
                     if (isMounted) {
                         setPoliticalEras(eras);
                         setDynasties(dynastyResponse);
                         setGovernmentTypes(governmentTypeResponse);
+                        setPeople(peopleData);
                         setDynastyNames(Object.fromEntries(
                             dynastyResponse.map((dynasty) => [dynasty.id, dynasty.name])
                         ));
@@ -294,6 +337,156 @@ function CountryViewer() {
             );
         } finally {
             setIsCreatingFlag(false);
+        }
+    }
+
+    async function handleCreateCapital(event) {
+        event.preventDefault();
+        setCreateCapitalError('');
+        setCreateCapitalSuccess('');
+
+        if (newCapital.end_date < newCapital.start_date) {
+            setCreateCapitalError('A data final deve ser igual ou posterior à data inicial.');
+            return;
+        }
+
+        const capital = {
+            name: newCapital.name.trim(),
+            start_date: newCapital.start_date,
+            end_date: newCapital.end_date,
+            political_era_id: Number(newCapital.political_era_id),
+            startdate_approximate: newCapital.startdate_approximate,
+            enddate_approximate: newCapital.enddate_approximate,
+        };
+
+        setIsCreatingCapital(true);
+        try {
+            await createCapital(capital);
+            setNewCapital({
+                name: '',
+                start_date: '',
+                end_date: '',
+                political_era_id: '',
+                startdate_approximate: false,
+                enddate_approximate: false,
+            });
+            setCreateCapitalSuccess(`${capital.name} foi cadastrada com sucesso.`);
+
+            try {
+                const erasResponse = await getPoliticalEras(id);
+                const eras = Array.isArray(erasResponse)
+                    ? erasResponse
+                    : erasResponse?.political_eras ?? erasResponse?.data;
+                if (!Array.isArray(eras)) {
+                    throw new Error('A resposta do servidor não contém uma lista de eras políticas.');
+                }
+                setPoliticalEras(eras);
+            } catch (refreshError) {
+                setCreateCapitalError(
+                    `Capital criada, mas não foi possível atualizar a lista: ${
+                        refreshError instanceof Error ? refreshError.message : 'Erro desconhecido.'
+                    }`
+                );
+            }
+        } catch (createError) {
+            const responseMessage = createError?.response?.data?.error
+                ?? createError?.response?.data?.message;
+            setCreateCapitalError(
+                responseMessage
+                    ?? (createError instanceof Error ? createError.message : 'Erro desconhecido.')
+            );
+        } finally {
+            setIsCreatingCapital(false);
+        }
+    }
+
+    async function handleCreateRuler(event) {
+        event.preventDefault();
+        const form = event.currentTarget;
+        setCreateRulerError('');
+        setCreateRulerSuccess('');
+
+        if (newRuler.end < newRuler.start) {
+            setCreateRulerError('A data final deve ser igual ou posterior à data inicial.');
+            return;
+        }
+
+        const ruler = {
+            political_era_id: Number(newRuler.political_era_id),
+            person_id: Number(newRuler.person_id),
+            start: newRuler.start,
+            end: newRuler.end,
+            startdate_approximate: newRuler.startdate_approximate,
+            enddate_approximate: newRuler.enddate_approximate,
+        };
+        const selectedPerson = people.find((person) => String(person.id) === newRuler.person_id);
+
+        setIsCreatingRuler(true);
+        try {
+            const rulerResponse = await createRuler(ruler);
+            const createdRuler = rulerResponse?.ruler ?? rulerResponse;
+            let portraitError = '';
+
+            if (newRuler.image) {
+                if (createdRuler?.id == null) {
+                    portraitError = 'O líder foi criado, mas o servidor não retornou o ID necessário para associar o retrato.';
+                } else {
+                    try {
+                        await createPortrait({
+                            ruler_id: String(createdRuler.id),
+                            image: newRuler.image,
+                        });
+                    } catch (uploadError) {
+                        const responseMessage = uploadError?.response?.data?.error
+                            ?? uploadError?.response?.data?.message;
+                        portraitError = `O líder foi criado, mas não foi possível salvar o retrato: ${
+                            responseMessage
+                                ?? (uploadError instanceof Error ? uploadError.message : 'Erro desconhecido.')
+                        }`;
+                    }
+                }
+            }
+
+            setNewRuler({
+                political_era_id: '',
+                person_id: '',
+                start: '',
+                end: '',
+                startdate_approximate: false,
+                enddate_approximate: false,
+                image: null,
+            });
+            form.reset();
+            setCreateRulerSuccess(
+                `${selectedPerson?.name ?? 'Líder'} foi cadastrado com sucesso.${newRuler.image && !portraitError ? ' Retrato enviado.' : ''}`
+            );
+            setCreateRulerError(portraitError);
+
+            try {
+                const erasResponse = await getPoliticalEras(id);
+                const eras = Array.isArray(erasResponse)
+                    ? erasResponse
+                    : erasResponse?.political_eras ?? erasResponse?.data;
+                if (!Array.isArray(eras)) {
+                    throw new Error('A resposta do servidor não contém uma lista de eras políticas.');
+                }
+                setPoliticalEras(eras);
+            } catch (refreshError) {
+                const message = refreshError instanceof Error ? refreshError.message : 'Erro desconhecido.';
+                setCreateRulerError((currentError) => [
+                    currentError,
+                    `Líder criado, mas não foi possível atualizar a lista: ${message}`,
+                ].filter(Boolean).join(' '));
+            }
+        } catch (createError) {
+            const responseMessage = createError?.response?.data?.error
+                ?? createError?.response?.data?.message;
+            setCreateRulerError(
+                responseMessage
+                    ?? (createError instanceof Error ? createError.message : 'Erro desconhecido.')
+            );
+        } finally {
+            setIsCreatingRuler(false);
         }
     }
 
@@ -440,6 +633,234 @@ function CountryViewer() {
                         {createEraError && <p className='countryViewerError' role='alert'>{createEraError}</p>}
                         {createEraSuccess && <p className='countryViewerSuccess' role='status'>{createEraSuccess}</p>}
                     </form>
+                    <form className='countryViewerEraForm' onSubmit={handleCreateCapital}>
+                        <h3>Cadastrar capital</h3>
+                        <div className='countryViewerEraFormGrid'>
+                            <label>
+                                Era política *
+                                <select
+                                    name='capital[political_era_id]'
+                                    value={newCapital.political_era_id}
+                                    onChange={(event) => setNewCapital((current) => ({
+                                        ...current,
+                                        political_era_id: event.target.value,
+                                    }))}
+                                    required
+                                    disabled={isCreatingCapital || politicalEras.length === 0}
+                                >
+                                    <option value=''>Selecione uma era política</option>
+                                    {politicalEras.map((era) => (
+                                        <option key={era.id} value={era.id}>{era.name}</option>
+                                    ))}
+                                </select>
+                            </label>
+                            <label>
+                                Nome *
+                                <input
+                                    type='text'
+                                    name='capital[name]'
+                                    value={newCapital.name}
+                                    onChange={(event) => setNewCapital((current) => ({
+                                        ...current,
+                                        name: event.target.value,
+                                    }))}
+                                    required
+                                    disabled={isCreatingCapital}
+                                />
+                            </label>
+                            <label>
+                                Data de início *
+                                <input
+                                    type='date'
+                                    name='capital[start_date]'
+                                    value={newCapital.start_date}
+                                    onChange={(event) => setNewCapital((current) => ({
+                                        ...current,
+                                        start_date: event.target.value,
+                                    }))}
+                                    required
+                                    disabled={isCreatingCapital}
+                                />
+                            </label>
+                            <label>
+                                Data de fim *
+                                <input
+                                    type='date'
+                                    name='capital[end_date]'
+                                    value={newCapital.end_date}
+                                    onChange={(event) => setNewCapital((current) => ({
+                                        ...current,
+                                        end_date: event.target.value,
+                                    }))}
+                                    required
+                                    disabled={isCreatingCapital}
+                                />
+                            </label>
+                            <label className='countryViewerCheckboxLabel'>
+                                <input
+                                    type='checkbox'
+                                    name='capital[startdate_approximate]'
+                                    checked={newCapital.startdate_approximate}
+                                    onChange={(event) => setNewCapital((current) => ({
+                                        ...current,
+                                        startdate_approximate: event.target.checked,
+                                    }))}
+                                    disabled={isCreatingCapital}
+                                />
+                                Data de início aproximada
+                            </label>
+                            <label className='countryViewerCheckboxLabel'>
+                                <input
+                                    type='checkbox'
+                                    name='capital[enddate_approximate]'
+                                    checked={newCapital.enddate_approximate}
+                                    onChange={(event) => setNewCapital((current) => ({
+                                        ...current,
+                                        enddate_approximate: event.target.checked,
+                                    }))}
+                                    disabled={isCreatingCapital}
+                                />
+                                Data de fim aproximada
+                            </label>
+                        </div>
+                        <button
+                            className='countryViewerSubmitButton'
+                            type='submit'
+                            disabled={isCreatingCapital || politicalEras.length === 0}
+                        >
+                            {isCreatingCapital ? 'Salvando...' : 'Cadastrar capital'}
+                        </button>
+                        {politicalEras.length === 0 && (
+                            <p>Crie uma era política antes de cadastrar uma capital.</p>
+                        )}
+                        {createCapitalError && <p className='countryViewerError' role='alert'>{createCapitalError}</p>}
+                        {createCapitalSuccess && <p className='countryViewerSuccess' role='status'>{createCapitalSuccess}</p>}
+                    </form>
+                    <form className='countryViewerEraForm' onSubmit={handleCreateRuler}>
+                        <h3>Cadastrar líder</h3>
+                        <div className='countryViewerEraFormGrid'>
+                            <label>
+                                Era política *
+                                <select
+                                    name='ruler[political_era_id]'
+                                    value={newRuler.political_era_id}
+                                    onChange={(event) => setNewRuler((current) => ({
+                                        ...current,
+                                        political_era_id: event.target.value,
+                                    }))}
+                                    required
+                                    disabled={isCreatingRuler || politicalEras.length === 0}
+                                >
+                                    <option value=''>Selecione uma era política</option>
+                                    {politicalEras.map((era) => (
+                                        <option key={era.id} value={era.id}>
+                                            {era.name ?? `Era política ${era.id}`}
+                                        </option>
+                                    ))}
+                                </select>
+                            </label>
+                            <label>
+                                Pessoa *
+                                <select
+                                    name='ruler[person_id]'
+                                    value={newRuler.person_id}
+                                    onChange={(event) => setNewRuler((current) => ({
+                                        ...current,
+                                        person_id: event.target.value,
+                                    }))}
+                                    required
+                                    disabled={isCreatingRuler || people.length === 0}
+                                >
+                                    <option value=''>Selecione uma pessoa</option>
+                                    {people.map((person) => (
+                                        <option key={person.id} value={person.id}>{person.name}</option>
+                                    ))}
+                                </select>
+                            </label>
+                            <label>
+                                Data de início *
+                                <input
+                                    type='date'
+                                    name='ruler[start]'
+                                    value={newRuler.start}
+                                    onChange={(event) => setNewRuler((current) => ({
+                                        ...current,
+                                        start: event.target.value,
+                                    }))}
+                                    required
+                                    disabled={isCreatingRuler}
+                                />
+                            </label>
+                            <label>
+                                Data de fim *
+                                <input
+                                    type='date'
+                                    name='ruler[end]'
+                                    value={newRuler.end}
+                                    onChange={(event) => setNewRuler((current) => ({
+                                        ...current,
+                                        end: event.target.value,
+                                    }))}
+                                    required
+                                    disabled={isCreatingRuler}
+                                />
+                            </label>
+                            <label className='countryViewerCheckboxLabel'>
+                                <input
+                                    type='checkbox'
+                                    name='ruler[startdate_approximate]'
+                                    checked={newRuler.startdate_approximate}
+                                    onChange={(event) => setNewRuler((current) => ({
+                                        ...current,
+                                        startdate_approximate: event.target.checked,
+                                    }))}
+                                    disabled={isCreatingRuler}
+                                />
+                                Data de início aproximada
+                            </label>
+                            <label className='countryViewerCheckboxLabel'>
+                                <input
+                                    type='checkbox'
+                                    name='ruler[enddate_approximate]'
+                                    checked={newRuler.enddate_approximate}
+                                    onChange={(event) => setNewRuler((current) => ({
+                                        ...current,
+                                        enddate_approximate: event.target.checked,
+                                    }))}
+                                    disabled={isCreatingRuler}
+                                />
+                                Data de fim aproximada
+                            </label>
+                            <label>
+                                Retrato
+                                <input
+                                    type='file'
+                                    name='portrait[image]'
+                                    accept='image/*'
+                                    onChange={(event) => setNewRuler((current) => ({
+                                        ...current,
+                                        image: event.target.files?.[0] ?? null,
+                                    }))}
+                                    disabled={isCreatingRuler}
+                                />
+                            </label>
+                        </div>
+                        <button
+                            className='countryViewerSubmitButton'
+                            type='submit'
+                            disabled={isCreatingRuler || politicalEras.length === 0 || people.length === 0}
+                        >
+                            {isCreatingRuler ? 'Salvando...' : 'Cadastrar líder'}
+                        </button>
+                        {politicalEras.length === 0 && (
+                            <p>Crie uma era política antes de cadastrar um líder.</p>
+                        )}
+                        {people.length === 0 && (
+                            <p>Cadastre uma pessoa antes de criar um líder.</p>
+                        )}
+                        {createRulerError && <p className='countryViewerError' role='alert'>{createRulerError}</p>}
+                        {createRulerSuccess && <p className='countryViewerSuccess' role='status'>{createRulerSuccess}</p>}
+                    </form>
                     <form className='countryViewerEraForm' onSubmit={handleCreateFlag}>
                         <h3>Criar bandeira</h3>
                         <div className='countryViewerEraFormGrid'>
@@ -563,10 +984,10 @@ function CountryViewer() {
                                             items={sortRulersByReign(era.rulers ?? [])}
                                             renderSlide={(ruler) => {
                                                 const rulerName = ruler.person?.name ?? 'Nome indisponível';
-                                                const portrait = ruler.portrait
-                                                    ?? ruler.image
-                                                    ?? ruler.person?.portrait
-                                                    ?? ruler.person?.image;
+                                                const portrait = getPortraitImage(ruler.portrait)
+                                                    ?? getPortraitImage(ruler.image)
+                                                    ?? getPortraitImage(ruler.person?.portrait)
+                                                    ?? getPortraitImage(ruler.person?.image);
                                                 return (
                                                     <div className='countryViewerCarouselCard'>
                                                         {portrait

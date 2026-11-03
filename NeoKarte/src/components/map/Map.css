@@ -17,7 +17,7 @@
 
 .mapHeight{
     height: 100%;
-    opacity: 60%;
+    opacity: 40%;
     filter: blur(3.5px);
     pointer-events: none;
 }

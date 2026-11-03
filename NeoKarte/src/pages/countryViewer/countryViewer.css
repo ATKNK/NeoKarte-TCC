@@ -156,6 +156,20 @@
     font-weight: normal;
 }
 
+.countryViewerEraFormGrid .countryViewerCheckboxLabel {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.countryViewerCheckboxLabel input {
+    min-width: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+
 .countryViewerSubmitButton {
     align-self: flex-start;
     padding: 0.6rem 0.85rem;
@@ -282,8 +296,6 @@
     width: min(100%, 12rem);
     height: 8rem;
     object-fit: contain;
-    border: 1px solid #b9a98f;
-    background-color: #fff;
 }
 
 .countryViewerError {
