@@ -1,10 +1,11 @@
 .timelineMain {
     display: flex;
     flex-direction: column;
-    width: 90vh;
+    width: 85vw;
 }
 
 .timelineButton {
+    display: flex;
     font-size: large;
     color: gold;
     background-color: rgb(52, 49, 78);
@@ -12,6 +13,7 @@
     border: solid black;
     border-radius: 2vh;
     cursor: pointer;
+    width: 20vh;
 }
 
 .timelineButton:hover{
@@ -22,11 +24,11 @@
 
 .timelineLabels {
     display: flex;
-    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
 }
 
 .timelineLabels > * {
-    flex: 1;
     display: flex;
     justify-content: center;
 }
