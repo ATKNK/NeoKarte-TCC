@@ -1,9 +1,9 @@
-import axios from 'axios';
+import apiClient from '../apiClient';
 
 export async function getAllCountries() {
 
     try {
-        const response = await axios.get('http://localhost:3000/countries');
+        const response = await apiClient.get('/countries');
         const data = response.data;
 
         return data;
@@ -15,7 +15,7 @@ export async function getAllCountries() {
 
 export async function createCountry(country) {
     try {
-        const response = await axios.post('http://localhost:3000/countries', { country });
+        const response = await apiClient.post('/countries', { country });
         return response.data;
     } catch (e) {
         console.error('Erro ao criar país: ', e);
@@ -25,7 +25,7 @@ export async function createCountry(country) {
 
 export async function getCountryById(id) {
     try {
-        const response = await axios.get(`http://localhost:3000/countries/${encodeURIComponent(id)}`);
+        const response = await apiClient.get(`/countries/${encodeURIComponent(id)}`);
         const data = response.data;
 
         return data;
@@ -41,8 +41,8 @@ export async function getCountryByTag(tag) {
 
 export async function getPoliticalEras(countryId) {
     try {
-        const response = await axios.get(
-            `http://localhost:3000/countries/${encodeURIComponent(countryId)}/political_eras`
+        const response = await apiClient.get(
+            `/countries/${encodeURIComponent(countryId)}/political_eras`
         );
         return response.data;
     } catch (e) {
@@ -53,7 +53,7 @@ export async function getPoliticalEras(countryId) {
 
 export async function getAllDynasties() {
     try {
-        const response = await axios.get('http://localhost:3000/dynasties');
+        const response = await apiClient.get('/dynasties');
         return response.data;
     } catch (e) {
         console.error('Erro ao ler dinastias: ', e);
@@ -63,7 +63,7 @@ export async function getAllDynasties() {
 
 export async function getAllGovernmentTypes() {
     try {
-        const response = await axios.get('http://localhost:3000/government_types');
+        const response = await apiClient.get('/government_types');
         return response.data;
     } catch (e) {
         console.error('Erro ao ler tipos de governo: ', e);
@@ -73,8 +73,8 @@ export async function getAllGovernmentTypes() {
 
 export async function createPoliticalEra(countryId, politicalEra) {
     try {
-        const response = await axios.post(
-            'http://localhost:3000/political_eras',
+        const response = await apiClient.post(
+            '/political_eras',
             {
                 political_era: {
                     ...politicalEra,
@@ -97,7 +97,7 @@ export async function createFlag(flag) {
         formData.append('flag[political_era_id]', flag.political_era_id);
         formData.append('flag[image]', flag.image);
 
-        const response = await axios.post('http://localhost:3000/flags', formData);
+        const response = await apiClient.post('/flags', formData);
         return response.data;
     } catch (e) {
         console.error('Erro ao criar bandeira: ', e);
@@ -107,7 +107,7 @@ export async function createFlag(flag) {
 
 export async function createCapital(capital) {
     try {
-        const response = await axios.post('http://localhost:3000/capitals', { capital });
+        const response = await apiClient.post('/capitals', { capital });
         return response.data;
     } catch (e) {
         console.error('Erro ao criar capital: ', e);
@@ -117,7 +117,7 @@ export async function createCapital(capital) {
 
 export async function createRuler(ruler) {
     try {
-        const response = await axios.post('http://localhost:3000/rulers', { ruler });
+        const response = await apiClient.post('/rulers', { ruler });
         return response.data;
     } catch (e) {
         console.error('Erro ao criar líder: ', e);
@@ -131,7 +131,7 @@ export async function createPortrait(portrait) {
         formData.append('portrait[ruler_id]', portrait.ruler_id);
         formData.append('portrait[image]', portrait.image);
 
-        const response = await axios.post('http://localhost:3000/portraits', formData);
+        const response = await apiClient.post('/portraits', formData);
         return response.data;
     } catch (e) {
         console.error('Erro ao criar retrato: ', e);
@@ -141,7 +141,7 @@ export async function createPortrait(portrait) {
 
 export async function getAllPeople() {
     try {
-        const response = await axios.get('http://localhost:3000/people');
+        const response = await apiClient.get('/people');
         return response.data;
     } catch (e) {
         console.error('Erro ao ler todas as pessoas: ', e);
@@ -151,7 +151,7 @@ export async function getAllPeople() {
 
 export async function createPerson(person) {
     try {
-        const response = await axios.post('http://localhost:3000/people', { person });
+        const response = await apiClient.post('/people', { person });
         return response.data;
     } catch (e) {
         console.error('Erro ao criar pessoa: ', e);
@@ -161,7 +161,7 @@ export async function createPerson(person) {
 
 export async function getDynastyById(id) {
     try {
-        const response = await axios.get(`http://localhost:3000/dynasties/${encodeURIComponent(id)}`);
+        const response = await apiClient.get(`/dynasties/${encodeURIComponent(id)}`);
         return response.data;
     } catch (e) {
         console.error('Erro ao ler dinastia: ', e);
@@ -179,7 +179,7 @@ export async function getPoliticalEra(tag, date) {
             return;
         }
 
-        const response = await axios.get(`http://localhost:3000/countries/${country.id}/political_eras/show_by_year`, {
+        const response = await apiClient.get(`/countries/${country.id}/political_eras/show_by_year`, {
             params: { selected_date: date }
         });
         const data = response.data;

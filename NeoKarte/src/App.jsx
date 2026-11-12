@@ -13,43 +13,36 @@ import MainMap from './pages/mainMap/mainMap';
 import CountryManager from './pages/countryManager/countryManager';
 import CountryViewer from './pages/countryViewer/countryViewer';
 import PeopleManager from './pages/peopleManager/peopleManager';
+import EventManager from './pages/eventManager/eventManager';
+import Login from './pages/login/Login';
+import { AuthProvider } from './auth/AuthContext';
+import RequireAuth from './auth/RequireAuth';
 
 function App() {
   return (
     <BrowserRouter>
-      <div className="appMain">
-        <Navbar />
+      <AuthProvider>
+        <div className="appMain">
+          <Navbar />
 
-        <div className="bodyMain">
-          <Routes>
-            <Route path="/" element={<MainMap />} />
+          <div className="bodyMain">
+            <Routes>
+              <Route path="/" element={<MainMap />} />
+              <Route path="/login" element={<Login />} />
 
-            <Route
-              path="/country-manager"
-              element={<CountryManager />}
-            />
+              <Route element={<RequireAuth />}>
+                <Route path="/country-manager" element={<CountryManager />} />
+                <Route path="/countries/:id" element={<CountryViewer />} />
+                <Route path="/countries/:id/political_eras" element={<CountryViewer />} />
+                <Route path="/people-manager" element={<PeopleManager />} />
+                <Route path="/event-manager" element={<EventManager />} />
+              </Route>
 
-            <Route
-              path="/countries/:id"
-              element={<CountryViewer />}
-            />
-
-            <Route
-              path="/countries/:id/political_eras"
-              element={<CountryViewer />}
-            />
-
-            <Route
-              path='/people-manager'
-              element={<PeopleManager />} />
-
-            <Route
-              path="*"
-              element={<Navigate to="/" replace />}
-            />
-          </Routes>
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
         </div>
-      </div>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

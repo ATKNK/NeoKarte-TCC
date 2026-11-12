@@ -1,0 +1,45 @@
+.loginMain {
+    display: flex;
+    justify-content: center;
+    padding: 5vh 1rem;
+}
+
+.loginForm {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    width: min(100%, 26rem);
+    padding: 2rem;
+    color: #181600;
+    background: #f5f0df;
+    border-radius: 0.75rem;
+}
+
+.loginForm h1 {
+    margin-bottom: 0.5rem;
+}
+
+.loginForm input {
+    padding: 0.65rem;
+    border: 1px solid #736d5b;
+    border-radius: 0.3rem;
+}
+
+.loginForm button {
+    margin-top: 0.5rem;
+    padding: 0.7rem;
+    color: gold;
+    background: #34314e;
+    border: 0;
+    border-radius: 0.4rem;
+    cursor: pointer;
+}
+
+.loginForm button:disabled {
+    cursor: wait;
+    opacity: 0.7;
+}
+
+.loginError {
+    color: #9c2525;
+}
