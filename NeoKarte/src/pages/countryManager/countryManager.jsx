@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './countryManager.css';
+import Form from '../../components/form/form';
 import { createCountry, getAllCountries } from '../../modules/maps/getCountry';
 
 function CountryManager() {
@@ -46,6 +47,14 @@ function CountryManager() {
     const filteredCountries = countries.filter((country) =>
         String(country.tag ?? '').toLocaleLowerCase().includes(normalizedTag)
     );
+    const countryFields = [
+        { id: 'countryTag', name: 'tag', label: 'Tag:', required: true, autoComplete: 'off' },
+        { id: 'countryName', name: 'name', label: 'Name:', required: true, autoComplete: 'off' },
+    ];
+
+    function handleCountryChange(name, value) {
+        setNewCountry((current) => ({ ...current, [name]: value }));
+    }
 
     async function handleCreateCountry(event) {
         event.preventDefault();
@@ -129,44 +138,23 @@ function CountryManager() {
                     )}
                 </div>
 
-                <div className='countryManagerCreate'>
-                    <h2>Create country</h2>
-                    <form className='countryManagerCreateForm' onSubmit={handleCreateCountry}>
-                        <label htmlFor='countryTag'>Tag:</label>
-                        <input
-                            type='text'
-                            id='countryTag'
-                            name='tag'
-                            value={newCountry.tag}
-                            onChange={(event) => setNewCountry((current) => ({
-                                ...current,
-                                tag: event.target.value,
-                            }))}
-                            autoComplete='off'
-                            required
-                            disabled={isCreating}
-                        />
-                        <label htmlFor='countryName'>Name:</label>
-                        <input
-                            type='text'
-                            id='countryName'
-                            name='name'
-                            value={newCountry.name}
-                            onChange={(event) => setNewCountry((current) => ({
-                                ...current,
-                                name: event.target.value,
-                            }))}
-                            autoComplete='off'
-                            required
-                            disabled={isCreating}
-                        />
-                        <button className='countryManagerButton' type='submit' disabled={isCreating}>
-                            {isCreating ? 'Creating...' : 'Create country'}
-                        </button>
-                        {createError && <p className='countryManagerError' role='alert'>{createError}</p>}
-                        {createSuccess && <p className='countryManagerSuccess' role='status'>{createSuccess}</p>}
-                    </form>
-                </div>
+                <Form
+                    title='Create country'
+                    fields={countryFields}
+                    values={newCountry}
+                    onChange={handleCountryChange}
+                    onSubmit={handleCreateCountry}
+                    submitLabel='Create country'
+                    submittingLabel='Creating...'
+                    isSubmitting={isCreating}
+                    error={createError}
+                    success={createSuccess}
+                    className='countryManagerCreate'
+                    formClassName='countryManagerCreateForm'
+                    buttonClassName='countryManagerButton'
+                    errorClassName='countryManagerError'
+                    successClassName='countryManagerSuccess'
+                />
 
             </div>
         </div>

@@ -1,5 +1,6 @@
 import './peopleManager.css';
 import { useEffect, useState } from 'react';
+import Form from '../../components/form/form';
 import { createPerson, getAllDynasties, getAllPeople } from '../../modules/maps/getCountry';
 
 const emptyPerson = {
@@ -80,6 +81,45 @@ function PeopleManager() {
         String(person.name ?? '').toLocaleLowerCase().includes(normalizedName)
     );
     const dynastyNames = Object.fromEntries(dynasties.map((dynasty) => [dynasty.id, dynasty.name]));
+    const personFields = [
+        { id: 'personName', name: 'name', label: 'Nome *', required: true, autoComplete: 'off' },
+        { id: 'personBirth', name: 'birth', label: 'Data de nascimento', type: 'date' },
+        {
+            id: 'personBirthApproximate',
+            name: 'birth_approximate',
+            label: 'Nascimento aproximado',
+            type: 'checkbox',
+            labelClassName: 'peopleManagerCheckboxLabel',
+        },
+        { id: 'personDeath', name: 'death', label: 'Data de falecimento', type: 'date' },
+        {
+            id: 'personDeathApproximate',
+            name: 'deathdate_approximate',
+            label: 'Falecimento aproximado',
+            type: 'checkbox',
+            labelClassName: 'peopleManagerCheckboxLabel',
+        },
+        {
+            id: 'personDynasty',
+            name: 'dynasty_id',
+            label: 'Dinastia',
+            type: 'select',
+            disabled: Boolean(dynastyError),
+            message: dynastyError
+                ? `Não foi possível carregar as dinastias: ${dynastyError}`
+                : '',
+            messageClassName: 'peopleManagerError',
+            messageRole: 'alert',
+            options: [
+                { value: '', label: 'Nenhuma' },
+                ...dynasties.map((dynasty) => ({ value: dynasty.id, label: dynasty.name })),
+            ],
+        },
+    ];
+
+    function handlePersonChange(name, value) {
+        setNewPerson((current) => ({ ...current, [name]: value }));
+    }
 
     async function handleCreatePerson(event) {
         event.preventDefault();
@@ -182,107 +222,23 @@ function PeopleManager() {
                     )}
                 </section>
 
-                <section className='peopleManagerCreate'>
-                    <h2>Cadastrar pessoa</h2>
-                    <form className='peopleManagerCreateForm' onSubmit={handleCreatePerson}>
-                        <label htmlFor='personName'>Nome *</label>
-                        <input
-                            type='text'
-                            id='personName'
-                            name='name'
-                            value={newPerson.name}
-                            onChange={(event) => setNewPerson((current) => ({
-                                ...current,
-                                name: event.target.value,
-                            }))}
-                            autoComplete='off'
-                            required
-                            disabled={isCreating}
-                        />
-
-                        <label htmlFor='personBirth'>Data de nascimento</label>
-                        <input
-                            type='date'
-                            id='personBirth'
-                            name='birth'
-                            value={newPerson.birth}
-                            onChange={(event) => setNewPerson((current) => ({
-                                ...current,
-                                birth: event.target.value,
-                            }))}
-                            disabled={isCreating}
-                        />
-                        <label className='peopleManagerCheckboxLabel' htmlFor='personBirthApproximate'>
-                            <input
-                                type='checkbox'
-                                id='personBirthApproximate'
-                                name='birth_approximate'
-                                checked={newPerson.birth_approximate}
-                                onChange={(event) => setNewPerson((current) => ({
-                                    ...current,
-                                    birth_approximate: event.target.checked,
-                                }))}
-                                disabled={isCreating}
-                            />
-                            Nascimento aproximado
-                        </label>
-
-                        <label htmlFor='personDeath'>Data de falecimento</label>
-                        <input
-                            type='date'
-                            id='personDeath'
-                            name='death'
-                            value={newPerson.death}
-                            onChange={(event) => setNewPerson((current) => ({
-                                ...current,
-                                death: event.target.value,
-                            }))}
-                            disabled={isCreating}
-                        />
-                        <label className='peopleManagerCheckboxLabel' htmlFor='personDeathApproximate'>
-                            <input
-                                type='checkbox'
-                                id='personDeathApproximate'
-                                name='deathdate_approximate'
-                                checked={newPerson.deathdate_approximate}
-                                onChange={(event) => setNewPerson((current) => ({
-                                    ...current,
-                                    deathdate_approximate: event.target.checked,
-                                }))}
-                                disabled={isCreating}
-                            />
-                            Falecimento aproximado
-                        </label>
-
-                        <label htmlFor='personDynasty'>Dinastia</label>
-                        <select
-                            id='personDynasty'
-                            name='dynasty_id'
-                            value={newPerson.dynasty_id}
-                            onChange={(event) => setNewPerson((current) => ({
-                                ...current,
-                                dynasty_id: event.target.value,
-                            }))}
-                            disabled={isCreating || Boolean(dynastyError)}
-                        >
-                            <option value=''>Nenhuma</option>
-                            {dynasties.map((dynasty) => (
-                                <option key={dynasty.id} value={dynasty.id}>{dynasty.name}</option>
-                            ))}
-                        </select>
-                        {dynastyError && (
-                            <p className='peopleManagerError' role='alert'>
-                                Não foi possível carregar as dinastias: {dynastyError}
-                            </p>
-                        )}
-
-                        <button className='peopleManagerButton' type='submit' disabled={isCreating}>
-                            {isCreating ? 'Cadastrando...' : 'Cadastrar pessoa'}
-                        </button>
-                        {createError && <p className='peopleManagerError' role='alert'>{createError}</p>}
-                        {createSuccess && <p className='peopleManagerSuccess' role='status'>{createSuccess}</p>}
-                    </form>
-                </section>
+                <Form
+                    title='Cadastrar pessoa'
+                    fields={personFields}
+                    values={newPerson}
+                    onChange={handlePersonChange}
+                    onSubmit={handleCreatePerson}
+                    submitLabel='Cadastrar pessoa'
+                    submittingLabel='Cadastrando...'
+                    isSubmitting={isCreating}
+                    error={createError}
+                    success={createSuccess}
+                    className='peopleManagerCreate'
+                    formClassName='peopleManagerCreateForm'
+                    buttonClassName='peopleManagerButton'
+                    errorClassName='peopleManagerError'
+                    successClassName='peopleManagerSuccess'
+                />
             </div>
         </main>
     );
