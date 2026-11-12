@@ -1,12 +1,38 @@
 import React from "react";
 import "./Map.css";
 import maps from "../../modules/maps/mapLoader";
+import { getAllEvents } from "../../modules/maps/getEvent";
 import { getPoliticalEra } from "../../modules/maps/getCountry";
-import heightMap from "../../assets/img/GeographyHeight.png"; 
+import { renderEvent } from "../../modules/maps/renderEvent";
 
 function Map({ year, onCountrySelect }) {
+    const [events, setEvents] = React.useState([]);
     const key = `../../assets/maps/${year}.svg`;
     const MapComponent = maps[key];
+
+    React.useEffect(() => {
+        let isMounted = true;
+
+        getAllEvents()
+            .then((data) => {
+                if (!Array.isArray(data)) {
+                    throw new TypeError("A resposta de eventos deve ser uma lista.");
+                }
+
+                if (isMounted) {
+                    setEvents(data);
+                }
+            })
+            .catch((error) => {
+                if (isMounted) {
+                    console.error("Erro ao renderizar eventos históricos no mapa:", error);
+                }
+            });
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
     async function handleClick(e) {
         const tag = e.target.closest?.(".country[id]")?.id;
@@ -32,7 +58,9 @@ function Map({ year, onCountrySelect }) {
     return (
         <div className="mapMain" onClick={handleClick}>
             <MapComponent />
-            <img className="mapHeight" src={heightMap} alt="HeightMap" />
+            <div className="mapEvents" aria-label="Eventos históricos">
+                {events.map(renderEvent)}
+            </div>
         </div>
     );
 }

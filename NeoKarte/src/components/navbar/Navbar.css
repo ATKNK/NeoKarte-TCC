@@ -37,3 +37,7 @@
     align-items: center;
     text-align: center;
 }
+
+.navbarError {
+    color: #ffb3b3;
+}

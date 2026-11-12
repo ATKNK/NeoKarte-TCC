@@ -1,8 +1,28 @@
 .mapMain {
     position: relative;
+    overflow: hidden;
     background-color: #3B5D6E;
     background-image: url('../../assets/img/OceanTexture.png');
-    @apply flex justify-end items-center w-3/4 p-[0] m-[0] border-2; 
+    @apply flex justify-end items-center w-4/7 p-[0] m-[0] border-2; 
+}
+
+.mapEvents {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.mapEvent {
+    position: absolute;
+    display: block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid white;
+    border-radius: 50%;
+    background-color: #e63946;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.45);
+    transform: translate(-50%, -50%);
 }
 
 .mapHeight{
@@ -17,6 +37,7 @@
 
 .mapHeight{
     height: 100%;
+    width: 100%;
     opacity: 40%;
     filter: blur(3.5px);
     pointer-events: none;
