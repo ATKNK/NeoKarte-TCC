@@ -1,3 +1,17 @@
-.formMain{
-    background-color: aliceblue;
+.formMain {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.formForm {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.formField {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }

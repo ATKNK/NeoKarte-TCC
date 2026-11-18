@@ -1,11 +1,6 @@
 import './peopleManager.css';
 import { useEffect, useState } from 'react';
-import {
-    createPerson,
-    getAllDynasties,
-    getAllPeople,
-    updatePerson,
-} from '../../modules/maps/getCountry';
+import { createPerson, getAllDynasties, getAllPeople } from '../../modules/maps/getCountry';
 
 const emptyPerson = {
     name: '',
@@ -86,26 +81,6 @@ function PeopleManager() {
         String(person.name ?? '').toLocaleLowerCase().includes(normalizedName)
     );
     const dynastyNames = Object.fromEntries(dynasties.map((dynasty) => [dynasty.id, dynasty.name]));
-
-    function handleEditPerson(person) {
-        setEditingId(person.id);
-        setNewPerson({
-            name: person.name ?? '',
-            birth: String(person.birth ?? '').slice(0, 10),
-            death: String(person.death ?? '').slice(0, 10),
-            dynasty_id: person.dynasty_id == null ? '' : String(person.dynasty_id),
-            birth_approximate: Boolean(person.birth_approximate),
-            deathdate_approximate: Boolean(person.deathdate_approximate),
-        });
-        setCreateError('');
-        setCreateSuccess('');
-    }
-
-    function resetPersonForm() {
-        setNewPerson(emptyPerson);
-        setEditingId(null);
-        setCreateError('');
-    }
 
     async function handleCreatePerson(event) {
         event.preventDefault();
@@ -222,7 +197,7 @@ function PeopleManager() {
                 </section>
 
                 <section className='peopleManagerCreate'>
-                    <h2>{editingId === null ? 'Cadastrar pessoa' : 'Editar pessoa'}</h2>
+                    <h2>Cadastrar pessoa</h2>
                     <form className='peopleManagerCreateForm' onSubmit={handleCreatePerson}>
                         <label htmlFor='personName'>Nome *</label>
                         <input
@@ -316,20 +291,8 @@ function PeopleManager() {
                         )}
 
                         <button className='peopleManagerButton' type='submit' disabled={isCreating}>
-                            {isCreating
-                                ? editingId === null ? 'Cadastrando...' : 'Salvando...'
-                                : editingId === null ? 'Cadastrar pessoa' : 'Salvar alterações'}
+                            {isCreating ? 'Cadastrando...' : 'Cadastrar pessoa'}
                         </button>
-                        {editingId !== null && (
-                            <button
-                                className='peopleManagerButton'
-                                type='button'
-                                onClick={resetPersonForm}
-                                disabled={isCreating}
-                            >
-                                Cancelar edição
-                            </button>
-                        )}
                         {createError && <p className='peopleManagerError' role='alert'>{createError}</p>}
                         {createSuccess && <p className='peopleManagerSuccess' role='status'>{createSuccess}</p>}
                     </form>
