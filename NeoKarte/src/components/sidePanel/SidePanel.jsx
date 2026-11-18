@@ -69,6 +69,7 @@ function FlagImage({ src, alt }) {
 
 function SidePanel({
     year,
+    event,
     ...countryData
 }) {
     const {
@@ -105,12 +106,67 @@ function SidePanel({
     const leaderImage = portrait || activeRuler?.image;
     const flagImage = activeFlag?.image || activeFlag || flag?.image || flag;
 
+    if (event) {
+        const eventImages = (Array.isArray(event.event_images) ? event.event_images : [])
+            .filter((eventImage) => typeof eventImage?.image === 'string' && eventImage.image.trim());
+        if (eventImages.length === 0 && typeof event.image === 'string' && event.image.trim()) {
+            eventImages.push({ image: event.image });
+        }
+
+        const eventStart = event.start_date
+            ? `${event.startdate_approximate ? 'aprox. ' : ''}${event.start_date}`
+            : '';
+        const eventEnd = event.end_date
+            ? `${event.enddate_approximate ? 'aprox. ' : ''}${event.end_date}`
+            : '';
+        const eventDates = eventStart && eventEnd && event.start_date !== event.end_date
+            ? `${eventStart} – ${eventEnd}`
+            : eventStart || eventEnd || 'Data não informada';
+
+        return (
+            <div className='sidePanelMain' aria-live='polite'>
+                <header className='sidePanelYear'>{year}</header>
+                <div className='countryPanel'>
+                    <p className='countryMainName'>{event.name || 'Evento histórico'}</p>
+                    {eventImages.length > 0 && (
+                        <div className='eventImages'>
+                            {eventImages.map((eventImage, index) => (
+                                <img
+                                    key={eventImage.id ?? `${eventImage.image}-${index}`}
+                                    className='eventImage'
+                                    src={eventImage.image}
+                                    alt={`Image ${index + 1} of ${event.name || 'historical event'}`}
+                                />
+                            ))}
+                        </div>
+                    )}
+                    <div className='eventDetails'>
+                        <div className='eventDetailsItem'>
+                            <p className='panelLabel'>Local:</p>
+                            <p>{event.location || '-'}</p>
+                        </div>
+                        <div className='eventDetailsItem'>
+                            <p className='panelLabel'>Data:</p>
+                            <p>{eventDates}</p>
+                        </div>
+                    </div>
+                    {event.description && (
+                        <div className='eventDescription'>
+                            <p className='panelLabel'>Descrição:</p>
+                            <p>{event.description}</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
     if (!name) {
         return (
             <div className='sidePanelMain'>
                 <header className='sidePanelYear'>{year}</header>
                 <div className='countryPanel'>
-                    <p>Selecione um País</p>
+                    <p>Selecione um País ou Evento</p>
                 </div>
             </div>
         )

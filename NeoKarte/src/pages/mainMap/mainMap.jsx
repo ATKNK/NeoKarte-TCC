@@ -7,9 +7,16 @@ import './mainMap.css';
 function MainMap() {
     const [year, setYear] = useState(1444);
     const [selectedCountry, setSelectedCountry] = useState(null);
+    const [selectedEvent, setSelectedEvent] = useState(null);
 
     function handleCountrySelect(country) {
         setSelectedCountry(country);
+        setSelectedEvent(null);
+    }
+
+    function handleEventSelect(event) {
+        setSelectedCountry(null);
+        setSelectedEvent(event);
     }
 
     function handleYearChange(newYear) {
@@ -19,8 +26,12 @@ function MainMap() {
     return (
         <div className='mainMapMain'>
             <div className='mainMapMap'>
-                <Map year={year} onCountrySelect={handleCountrySelect} />
-                <SidePanel year={year} {...selectedCountry} />
+                <Map
+                    year={year}
+                    onCountrySelect={handleCountrySelect}
+                    onEventSelect={handleEventSelect}
+                />
+                <SidePanel year={year} {...selectedCountry} event={selectedEvent} />
             </div>
             <div className='mainMapTimeline'>
                 <Timeline onYearChange={handleYearChange}/>

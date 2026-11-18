@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import {
     createCapital,
@@ -11,6 +11,11 @@ import {
     getAllPeople,
     getCountryById,
     getPoliticalEras,
+    updateCapital,
+    updateFlag,
+    updatePoliticalEra,
+    updatePortrait,
+    updateRuler,
 } from '../../modules/maps/getCountry';
 import './countryViewer.css';
 
@@ -26,6 +31,15 @@ function getPortraitImage(portrait) {
         return portrait;
     }
     return portrait?.image;
+}
+
+function getRulerPortraitRecord(ruler) {
+    return [
+        ruler.portrait,
+        ruler.image,
+        ruler.person?.portrait,
+        ruler.person?.image,
+    ].find((portrait) => portrait && typeof portrait === 'object' && portrait.id != null);
 }
 
 function formatDateRange(startDate, endDate) {
@@ -100,6 +114,9 @@ function EraCarousel({ title, items, renderSlide }) {
 function CountryViewer() {
     const { id } = useParams();
     const location = useLocation();
+    const capitalFormRef = useRef(null);
+    const flagFormRef = useRef(null);
+    const rulerFormRef = useRef(null);
     const isPoliticalErasPage = location.pathname.endsWith('/political_eras');
     const [country, setCountry] = useState(null);
     const [politicalEras, setPoliticalEras] = useState([]);
@@ -117,6 +134,7 @@ function CountryViewer() {
         dynasty_id: '',
         government_type_id: '',
     });
+    const [editingEraId, setEditingEraId] = useState(null);
     const [isCreatingEra, setIsCreatingEra] = useState(false);
     const [createEraError, setCreateEraError] = useState('');
     const [createEraSuccess, setCreateEraSuccess] = useState('');
@@ -126,6 +144,8 @@ function CountryViewer() {
         political_era_id: '',
         image: null,
     });
+    const [editingFlagId, setEditingFlagId] = useState(null);
+    const [editingFlagImage, setEditingFlagImage] = useState('');
     const [isCreatingFlag, setIsCreatingFlag] = useState(false);
     const [createFlagError, setCreateFlagError] = useState('');
     const [createFlagSuccess, setCreateFlagSuccess] = useState('');
@@ -137,6 +157,7 @@ function CountryViewer() {
         startdate_approximate: false,
         enddate_approximate: false,
     });
+    const [editingCapitalId, setEditingCapitalId] = useState(null);
     const [isCreatingCapital, setIsCreatingCapital] = useState(false);
     const [createCapitalError, setCreateCapitalError] = useState('');
     const [createCapitalSuccess, setCreateCapitalSuccess] = useState('');
@@ -150,6 +171,9 @@ function CountryViewer() {
         enddate_approximate: false,
         image: null,
     });
+    const [editingRulerId, setEditingRulerId] = useState(null);
+    const [editingPortraitId, setEditingPortraitId] = useState(null);
+    const [editingPortraitImage, setEditingPortraitImage] = useState('');
     const [isCreatingRuler, setIsCreatingRuler] = useState(false);
     const [createRulerError, setCreateRulerError] = useState('');
     const [createRulerSuccess, setCreateRulerSuccess] = useState('');
@@ -246,17 +270,14 @@ function CountryViewer() {
 
         setIsCreatingEra(true);
         try {
-            await createPoliticalEra(id, politicalEra);
-            setNewEra({
-                name: '',
-                full_name: '',
-                full_name_local: '',
-                start_date: '',
-                end_date: '',
-                dynasty_id: '',
-                government_type_id: '',
-            });
-            setCreateEraSuccess(`${politicalEra.name} foi criada com sucesso.`);
+            if (editingEraId === null) {
+                await createPoliticalEra(id, politicalEra);
+                setCreateEraSuccess(`${politicalEra.name} foi criada com sucesso.`);
+            } else {
+                await updatePoliticalEra(editingEraId, politicalEra);
+                setCreateEraSuccess(`${politicalEra.name} foi atualizada com sucesso.`);
+            }
+            resetEraForm();
 
             try {
                 const erasResponse = await getPoliticalEras(id);
@@ -269,7 +290,7 @@ function CountryViewer() {
                 setPoliticalEras(eras);
             } catch (refreshError) {
                 setCreateEraError(
-                    `Era criada, mas não foi possível atualizar a lista: ${
+                    `Era salva, mas não foi possível atualizar a lista: ${
                         refreshError instanceof Error ? refreshError.message : 'Erro desconhecido.'
                     }`
                 );
@@ -286,9 +307,39 @@ function CountryViewer() {
         }
     }
 
+    function handleEditPoliticalEra(era) {
+        setEditingEraId(era.id);
+        setNewEra({
+            name: era.name ?? '',
+            full_name: era.full_name ?? '',
+            full_name_local: era.full_name_local ?? '',
+            start_date: String(era.start_date ?? '').slice(0, 10),
+            end_date: String(era.end_date ?? '').slice(0, 10),
+            dynasty_id: era.dynasty_id == null ? '' : String(era.dynasty_id),
+            government_type_id: era.government_type_id == null ? '' : String(era.government_type_id),
+        });
+        setCreateEraError('');
+        setCreateEraSuccess('');
+    }
+
+    function resetEraForm() {
+        setNewEra({
+            name: '',
+            full_name: '',
+            full_name_local: '',
+            start_date: '',
+            end_date: '',
+            dynasty_id: '',
+            government_type_id: '',
+        });
+        setEditingEraId(null);
+        setCreateEraError('');
+    }
+
     async function handleCreateFlag(event) {
         event.preventDefault();
         const form = event.currentTarget;
+        const isEditing = editingFlagId !== null;
         setCreateFlagError('');
         setCreateFlagSuccess('');
 
@@ -299,18 +350,27 @@ function CountryViewer() {
 
         setIsCreatingFlag(true);
         try {
-            await createFlag({
+            const flag = {
                 ...newFlag,
                 political_era_id: String(newFlag.political_era_id),
-            });
+            };
+            if (isEditing) {
+                await updateFlag(editingFlagId, flag);
+            } else {
+                await createFlag(flag);
+            }
             setNewFlag({
                 start_date: '',
                 end_date: '',
                 political_era_id: '',
                 image: null,
             });
+            setEditingFlagId(null);
+            setEditingFlagImage('');
             form.reset();
-            setCreateFlagSuccess('Bandeira criada com sucesso.');
+            setCreateFlagSuccess(
+                isEditing ? 'Bandeira atualizada com sucesso.' : 'Bandeira criada com sucesso.'
+            );
 
             try {
                 const erasResponse = await getPoliticalEras(id);
@@ -323,7 +383,7 @@ function CountryViewer() {
                 setPoliticalEras(eras);
             } catch (refreshError) {
                 setCreateFlagError(
-                    `Bandeira criada, mas não foi possível atualizar a lista: ${
+                    `Bandeira salva, mas não foi possível atualizar a lista: ${
                         refreshError instanceof Error ? refreshError.message : 'Erro desconhecido.'
                     }`
                 );
@@ -340,8 +400,36 @@ function CountryViewer() {
         }
     }
 
+    function handleEditFlag(flag, politicalEraId) {
+        setEditingFlagId(flag.id);
+        setEditingFlagImage(getFlagImage(flag) ?? '');
+        setNewFlag({
+            start_date: String(flag.start_date ?? '').slice(0, 10),
+            end_date: String(flag.end_date ?? '').slice(0, 10),
+            political_era_id: String(flag.political_era_id ?? politicalEraId),
+            image: null,
+        });
+        setCreateFlagError('');
+        setCreateFlagSuccess('');
+        flagFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function resetFlagForm() {
+        setNewFlag({
+            start_date: '',
+            end_date: '',
+            political_era_id: '',
+            image: null,
+        });
+        setEditingFlagId(null);
+        setEditingFlagImage('');
+        setCreateFlagError('');
+        flagFormRef.current?.reset();
+    }
+
     async function handleCreateCapital(event) {
         event.preventDefault();
+        const isEditing = editingCapitalId !== null;
         setCreateCapitalError('');
         setCreateCapitalSuccess('');
 
@@ -361,7 +449,11 @@ function CountryViewer() {
 
         setIsCreatingCapital(true);
         try {
-            await createCapital(capital);
+            if (isEditing) {
+                await updateCapital(editingCapitalId, capital);
+            } else {
+                await createCapital(capital);
+            }
             setNewCapital({
                 name: '',
                 start_date: '',
@@ -370,7 +462,12 @@ function CountryViewer() {
                 startdate_approximate: false,
                 enddate_approximate: false,
             });
-            setCreateCapitalSuccess(`${capital.name} foi cadastrada com sucesso.`);
+            setEditingCapitalId(null);
+            setCreateCapitalSuccess(
+                isEditing
+                    ? `${capital.name} foi atualizada com sucesso.`
+                    : `${capital.name} foi cadastrada com sucesso.`
+            );
 
             try {
                 const erasResponse = await getPoliticalEras(id);
@@ -383,7 +480,7 @@ function CountryViewer() {
                 setPoliticalEras(eras);
             } catch (refreshError) {
                 setCreateCapitalError(
-                    `Capital criada, mas não foi possível atualizar a lista: ${
+                    `Capital salva, mas não foi possível atualizar a lista: ${
                         refreshError instanceof Error ? refreshError.message : 'Erro desconhecido.'
                     }`
                 );
@@ -400,9 +497,38 @@ function CountryViewer() {
         }
     }
 
+    function handleEditCapital(capital, politicalEraId) {
+        setEditingCapitalId(capital.id);
+        setNewCapital({
+            name: capital.name ?? '',
+            start_date: String(capital.start_date ?? '').slice(0, 10),
+            end_date: String(capital.end_date ?? '').slice(0, 10),
+            political_era_id: String(capital.political_era_id ?? politicalEraId),
+            startdate_approximate: Boolean(capital.startdate_approximate),
+            enddate_approximate: Boolean(capital.enddate_approximate),
+        });
+        setCreateCapitalError('');
+        setCreateCapitalSuccess('');
+        capitalFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function resetCapitalForm() {
+        setNewCapital({
+            name: '',
+            start_date: '',
+            end_date: '',
+            political_era_id: '',
+            startdate_approximate: false,
+            enddate_approximate: false,
+        });
+        setEditingCapitalId(null);
+        setCreateCapitalError('');
+    }
+
     async function handleCreateRuler(event) {
         event.preventDefault();
         const form = event.currentTarget;
+        const isEditing = editingRulerId !== null;
         setCreateRulerError('');
         setCreateRulerSuccess('');
 
@@ -423,23 +549,31 @@ function CountryViewer() {
 
         setIsCreatingRuler(true);
         try {
-            const rulerResponse = await createRuler(ruler);
+            const rulerResponse = isEditing
+                ? await updateRuler(editingRulerId, ruler)
+                : await createRuler(ruler);
             const createdRuler = rulerResponse?.ruler ?? rulerResponse;
             let portraitError = '';
 
             if (newRuler.image) {
-                if (createdRuler?.id == null) {
-                    portraitError = 'O líder foi criado, mas o servidor não retornou o ID necessário para associar o retrato.';
+                const rulerId = editingRulerId ?? createdRuler?.id;
+                if (rulerId == null) {
+                    portraitError = 'O líder foi salvo, mas o servidor não retornou o ID necessário para associar o retrato.';
                 } else {
                     try {
-                        await createPortrait({
-                            ruler_id: String(createdRuler.id),
+                        const portrait = {
+                            ruler_id: String(rulerId),
                             image: newRuler.image,
-                        });
+                        };
+                        if (isEditing && editingPortraitId !== null) {
+                            await updatePortrait(editingPortraitId, portrait);
+                        } else {
+                            await createPortrait(portrait);
+                        }
                     } catch (uploadError) {
                         const responseMessage = uploadError?.response?.data?.error
                             ?? uploadError?.response?.data?.message;
-                        portraitError = `O líder foi criado, mas não foi possível salvar o retrato: ${
+                        portraitError = `O líder foi salvo, mas não foi possível salvar o retrato: ${
                             responseMessage
                                 ?? (uploadError instanceof Error ? uploadError.message : 'Erro desconhecido.')
                         }`;
@@ -456,9 +590,12 @@ function CountryViewer() {
                 enddate_approximate: false,
                 image: null,
             });
+            setEditingRulerId(null);
+            setEditingPortraitId(null);
+            setEditingPortraitImage('');
             form.reset();
             setCreateRulerSuccess(
-                `${selectedPerson?.name ?? 'Líder'} foi cadastrado com sucesso.${newRuler.image && !portraitError ? ' Retrato enviado.' : ''}`
+                `${selectedPerson?.name ?? 'Líder'} foi ${isEditing ? 'atualizado' : 'cadastrado'} com sucesso.${newRuler.image && !portraitError ? ' Retrato enviado.' : ''}`
             );
             setCreateRulerError(portraitError);
 
@@ -475,7 +612,7 @@ function CountryViewer() {
                 const message = refreshError instanceof Error ? refreshError.message : 'Erro desconhecido.';
                 setCreateRulerError((currentError) => [
                     currentError,
-                    `Líder criado, mas não foi possível atualizar a lista: ${message}`,
+                    `Líder salvo, mas não foi possível atualizar a lista: ${message}`,
                 ].filter(Boolean).join(' '));
             }
         } catch (createError) {
@@ -488,6 +625,47 @@ function CountryViewer() {
         } finally {
             setIsCreatingRuler(false);
         }
+    }
+
+    function handleEditRuler(ruler, politicalEraId) {
+        const portraitRecord = getRulerPortraitRecord(ruler);
+        const portraitImage = getPortraitImage(ruler.portrait)
+            ?? getPortraitImage(ruler.image)
+            ?? getPortraitImage(ruler.person?.portrait)
+            ?? getPortraitImage(ruler.person?.image)
+            ?? '';
+        setEditingRulerId(ruler.id);
+        setEditingPortraitId(portraitRecord?.id ?? ruler.portrait_id ?? null);
+        setEditingPortraitImage(portraitImage);
+        setNewRuler({
+            political_era_id: String(ruler.political_era_id ?? politicalEraId),
+            person_id: String(ruler.person_id ?? ruler.person?.id ?? ''),
+            start: String(ruler.start ?? ruler.start_date ?? '').slice(0, 10),
+            end: String(ruler.end ?? ruler.end_date ?? '').slice(0, 10),
+            startdate_approximate: Boolean(ruler.startdate_approximate),
+            enddate_approximate: Boolean(ruler.enddate_approximate),
+            image: null,
+        });
+        setCreateRulerError('');
+        setCreateRulerSuccess('');
+        rulerFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function resetRulerForm() {
+        setNewRuler({
+            political_era_id: '',
+            person_id: '',
+            start: '',
+            end: '',
+            startdate_approximate: false,
+            enddate_approximate: false,
+            image: null,
+        });
+        setEditingRulerId(null);
+        setEditingPortraitId(null);
+        setEditingPortraitImage('');
+        setCreateRulerError('');
+        rulerFormRef.current?.reset();
     }
 
     if (isLoading) {
@@ -541,7 +719,7 @@ function CountryViewer() {
                 <section className='countryViewerPanel' aria-labelledby='politicalErasTitle'>
                     <h2 id='politicalErasTitle'>Eras políticas</h2>
                     <form className='countryViewerEraForm' onSubmit={handleCreatePoliticalEra}>
-                        <h3>Criar era política</h3>
+                        <h3>{editingEraId === null ? 'Criar era política' : 'Editar era política'}</h3>
                         <div className='countryViewerEraFormGrid'>
                             <label>
                                 Nome *
@@ -628,13 +806,25 @@ function CountryViewer() {
                             </label>
                         </div>
                         <button className='countryViewerSubmitButton' type='submit' disabled={isCreatingEra}>
-                            {isCreatingEra ? 'Criando...' : 'Criar era política'}
+                            {isCreatingEra
+                                ? editingEraId === null ? 'Criando...' : 'Salvando...'
+                                : editingEraId === null ? 'Criar era política' : 'Salvar alterações'}
                         </button>
+                        {editingEraId !== null && (
+                            <button
+                                className='countryViewerCancelButton'
+                                type='button'
+                                onClick={resetEraForm}
+                                disabled={isCreatingEra}
+                            >
+                                Cancelar edição
+                            </button>
+                        )}
                         {createEraError && <p className='countryViewerError' role='alert'>{createEraError}</p>}
                         {createEraSuccess && <p className='countryViewerSuccess' role='status'>{createEraSuccess}</p>}
                     </form>
-                    <form className='countryViewerEraForm' onSubmit={handleCreateCapital}>
-                        <h3>Cadastrar capital</h3>
+                    <form ref={capitalFormRef} className='countryViewerEraForm' onSubmit={handleCreateCapital}>
+                        <h3>{editingCapitalId === null ? 'Cadastrar capital' : 'Editar capital'}</h3>
                         <div className='countryViewerEraFormGrid'>
                             <label>
                                 Era política *
@@ -728,16 +918,28 @@ function CountryViewer() {
                             type='submit'
                             disabled={isCreatingCapital || politicalEras.length === 0}
                         >
-                            {isCreatingCapital ? 'Salvando...' : 'Cadastrar capital'}
+                            {isCreatingCapital
+                                ? 'Salvando...'
+                                : editingCapitalId === null ? 'Cadastrar capital' : 'Salvar alterações'}
                         </button>
+                        {editingCapitalId !== null && (
+                            <button
+                                className='countryViewerCancelButton'
+                                type='button'
+                                onClick={resetCapitalForm}
+                                disabled={isCreatingCapital}
+                            >
+                                Cancelar edição
+                            </button>
+                        )}
                         {politicalEras.length === 0 && (
                             <p>Crie uma era política antes de cadastrar uma capital.</p>
                         )}
                         {createCapitalError && <p className='countryViewerError' role='alert'>{createCapitalError}</p>}
                         {createCapitalSuccess && <p className='countryViewerSuccess' role='status'>{createCapitalSuccess}</p>}
                     </form>
-                    <form className='countryViewerEraForm' onSubmit={handleCreateRuler}>
-                        <h3>Cadastrar líder</h3>
+                    <form ref={rulerFormRef} className='countryViewerEraForm' onSubmit={handleCreateRuler}>
+                        <h3>{editingRulerId === null ? 'Cadastrar líder' : 'Editar líder'}</h3>
                         <div className='countryViewerEraFormGrid'>
                             <label>
                                 Era política *
@@ -832,7 +1034,7 @@ function CountryViewer() {
                                 Data de fim aproximada
                             </label>
                             <label>
-                                Retrato
+                                Retrato {editingRulerId === null ? '' : '(opcional para substituir)'}
                                 <input
                                     type='file'
                                     name='portrait[image]'
@@ -845,13 +1047,36 @@ function CountryViewer() {
                                 />
                             </label>
                         </div>
+                        {editingPortraitImage && (
+                            <div className='countryViewerImageEditPreview'>
+                                <span>Retrato atual</span>
+                                <img
+                                    className='countryViewerLeaderPortrait'
+                                    src={editingPortraitImage}
+                                    alt='Retrato atual do líder'
+                                />
+                            </div>
+                        )}
+                        {newRuler.image && <p>Nova imagem selecionada: {newRuler.image.name}</p>}
                         <button
                             className='countryViewerSubmitButton'
                             type='submit'
                             disabled={isCreatingRuler || politicalEras.length === 0 || people.length === 0}
                         >
-                            {isCreatingRuler ? 'Salvando...' : 'Cadastrar líder'}
+                            {isCreatingRuler
+                                ? 'Salvando...'
+                                : editingRulerId === null ? 'Cadastrar líder' : 'Salvar alterações'}
                         </button>
+                        {editingRulerId !== null && (
+                            <button
+                                className='countryViewerCancelButton'
+                                type='button'
+                                onClick={resetRulerForm}
+                                disabled={isCreatingRuler}
+                            >
+                                Cancelar edição
+                            </button>
+                        )}
                         {politicalEras.length === 0 && (
                             <p>Crie uma era política antes de cadastrar um líder.</p>
                         )}
@@ -861,8 +1086,8 @@ function CountryViewer() {
                         {createRulerError && <p className='countryViewerError' role='alert'>{createRulerError}</p>}
                         {createRulerSuccess && <p className='countryViewerSuccess' role='status'>{createRulerSuccess}</p>}
                     </form>
-                    <form className='countryViewerEraForm' onSubmit={handleCreateFlag}>
-                        <h3>Criar bandeira</h3>
+                    <form ref={flagFormRef} className='countryViewerEraForm' onSubmit={handleCreateFlag}>
+                        <h3>{editingFlagId === null ? 'Criar bandeira' : 'Editar bandeira'}</h3>
                         <div className='countryViewerEraFormGrid'>
                             <label>
                                 Era política *
@@ -913,7 +1138,7 @@ function CountryViewer() {
                                 />
                             </label>
                             <label>
-                                Imagem *
+                                Imagem {editingFlagId === null ? '*' : '(opcional para substituir)'}
                                 <input
                                     type='file'
                                     name='flag[image]'
@@ -922,18 +1147,41 @@ function CountryViewer() {
                                         ...current,
                                         image: event.target.files?.[0] ?? null,
                                     }))}
-                                    required
+                                    required={editingFlagId === null}
                                     disabled={isCreatingFlag}
                                 />
                             </label>
                         </div>
+                        {editingFlagImage && (
+                            <div className='countryViewerImageEditPreview'>
+                                <span>Bandeira atual</span>
+                                <img
+                                    className='countryViewerEraFlag'
+                                    src={editingFlagImage}
+                                    alt='Bandeira atual'
+                                />
+                            </div>
+                        )}
+                        {newFlag.image && <p>Nova imagem selecionada: {newFlag.image.name}</p>}
                         <button
                             className='countryViewerSubmitButton'
                             type='submit'
                             disabled={isCreatingFlag || politicalEras.length === 0}
                         >
-                            {isCreatingFlag ? 'Criando...' : 'Criar bandeira'}
+                            {isCreatingFlag
+                                ? 'Salvando...'
+                                : editingFlagId === null ? 'Criar bandeira' : 'Salvar alterações'}
                         </button>
+                        {editingFlagId !== null && (
+                            <button
+                                className='countryViewerCancelButton'
+                                type='button'
+                                onClick={resetFlagForm}
+                                disabled={isCreatingFlag}
+                            >
+                                Cancelar edição
+                            </button>
+                        )}
                         {politicalEras.length === 0 && (
                             <p>Crie uma era política antes de cadastrar uma bandeira.</p>
                         )}
@@ -945,6 +1193,14 @@ function CountryViewer() {
                             {politicalEras.map((era, index) => (
                                 <article className='countryViewerEra' key={era.id ?? `${era.start_date}-${index}`}>
                                     <h3>{era.name ?? `Era política ${index + 1}`}</h3>
+                                    <button
+                                        className='countryViewerSubmitButton'
+                                        type='button'
+                                        onClick={() => handleEditPoliticalEra(era)}
+                                        disabled={isCreatingEra}
+                                    >
+                                        Editar era
+                                    </button>
                                     <p className='countryViewerEraPeriod'>
                                         {formatDateRange(era.start_date, era.end_date)}
                                     </p>
@@ -995,6 +1251,16 @@ function CountryViewer() {
                                                             : <div className='countryViewerImagePlaceholder'>Retrato indisponível</div>}
                                                         <strong>{rulerName}</strong>
                                                         <span>{formatDateRange(ruler.start, ruler.end)}</span>
+                                                        {ruler.id != null && (
+                                                            <button
+                                                                className='countryViewerItemEditButton'
+                                                                type='button'
+                                                                onClick={() => handleEditRuler(ruler, era.id)}
+                                                                disabled={isCreatingRuler}
+                                                            >
+                                                                Editar líder
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 );
                                             }}
@@ -1002,14 +1268,27 @@ function CountryViewer() {
                                         <EraList
                                             title='Capitais'
                                             items={era.capitals ?? []}
-                                            renderItem={(capital) => (
-                                                <li key={capital.id ?? capital.name}>
-                                                    <strong>{capital.name ?? capital}</strong>
-                                                    {typeof capital === 'object' && (capital.start_date || capital.end_date) && (
-                                                        <span> — {formatDateRange(capital.start_date, capital.end_date)}</span>
-                                                    )}
-                                                </li>
-                                            )}
+                                            renderItem={(capital) => {
+                                                const hasId = typeof capital === 'object' && capital?.id != null;
+                                                return (
+                                                    <li key={capital.id ?? capital.name}>
+                                                        <strong>{capital.name ?? capital}</strong>
+                                                        {typeof capital === 'object' && (capital.start_date || capital.end_date) && (
+                                                            <span> — {formatDateRange(capital.start_date, capital.end_date)}</span>
+                                                        )}
+                                                        {hasId && (
+                                                            <button
+                                                                className='countryViewerItemEditButton'
+                                                                type='button'
+                                                                onClick={() => handleEditCapital(capital, era.id)}
+                                                                disabled={isCreatingCapital}
+                                                            >
+                                                                Editar capital
+                                                            </button>
+                                                        )}
+                                                    </li>
+                                                );
+                                            }}
                                         />
                                         <EraCarousel
                                             title='Bandeiras'
@@ -1023,6 +1302,16 @@ function CountryViewer() {
                                                             : <div className='countryViewerImagePlaceholder'>Bandeira indisponível</div>}
                                                         {typeof flag === 'object' && (flag.start_date || flag.end_date) && (
                                                             <span>{formatDateRange(flag.start_date, flag.end_date)}</span>
+                                                        )}
+                                                        {typeof flag === 'object' && flag?.id != null && (
+                                                            <button
+                                                                className='countryViewerItemEditButton'
+                                                                type='button'
+                                                                onClick={() => handleEditFlag(flag, era.id)}
+                                                                disabled={isCreatingFlag}
+                                                            >
+                                                                Editar bandeira
+                                                            </button>
                                                         )}
                                                     </div>
                                                 );

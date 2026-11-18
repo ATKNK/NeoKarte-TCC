@@ -1,6 +1,11 @@
 import './peopleManager.css';
 import { useEffect, useState } from 'react';
-import { createPerson, getAllDynasties, getAllPeople } from '../../modules/maps/getCountry';
+import {
+    createPerson,
+    getAllDynasties,
+    getAllPeople,
+    updatePerson,
+} from '../../modules/maps/getCountry';
 
 const emptyPerson = {
     name: '',
@@ -25,6 +30,7 @@ function PeopleManager() {
     const [error, setError] = useState('');
     const [dynastyError, setDynastyError] = useState('');
     const [newPerson, setNewPerson] = useState(emptyPerson);
+    const [editingId, setEditingId] = useState(null);
     const [isCreating, setIsCreating] = useState(false);
     const [createError, setCreateError] = useState('');
     const [createSuccess, setCreateSuccess] = useState('');
@@ -81,6 +87,26 @@ function PeopleManager() {
     );
     const dynastyNames = Object.fromEntries(dynasties.map((dynasty) => [dynasty.id, dynasty.name]));
 
+    function handleEditPerson(person) {
+        setEditingId(person.id);
+        setNewPerson({
+            name: person.name ?? '',
+            birth: String(person.birth ?? '').slice(0, 10),
+            death: String(person.death ?? '').slice(0, 10),
+            dynasty_id: person.dynasty_id == null ? '' : String(person.dynasty_id),
+            birth_approximate: Boolean(person.birth_approximate),
+            deathdate_approximate: Boolean(person.deathdate_approximate),
+        });
+        setCreateError('');
+        setCreateSuccess('');
+    }
+
+    function resetPersonForm() {
+        setNewPerson(emptyPerson);
+        setEditingId(null);
+        setCreateError('');
+    }
+
     async function handleCreatePerson(event) {
         event.preventDefault();
         setCreateError('');
@@ -106,9 +132,14 @@ function PeopleManager() {
 
         setIsCreating(true);
         try {
-            await createPerson(person);
-            setNewPerson(emptyPerson);
-            setCreateSuccess(`${person.name} foi cadastrada com sucesso.`);
+            if (editingId === null) {
+                await createPerson(person);
+                setCreateSuccess(`${person.name} foi cadastrada com sucesso.`);
+            } else {
+                await updatePerson(editingId, person);
+                setCreateSuccess(`${person.name} foi atualizada com sucesso.`);
+            }
+            resetPersonForm();
 
             try {
                 const peopleResponse = await getAllPeople();
@@ -122,7 +153,7 @@ function PeopleManager() {
                 setError('');
             } catch (refreshError) {
                 setCreateError(
-                    `Pessoa criada, mas não foi possível atualizar a lista: ${getErrorMessage(refreshError)}`
+                    `Pessoa salva, mas não foi possível atualizar a lista: ${getErrorMessage(refreshError)}`
                 );
             }
         } catch (createRequestError) {
@@ -173,6 +204,14 @@ function PeopleManager() {
                                             </span>
                                         )}
                                     </div>
+                                    <button
+                                        className='peopleManagerButton'
+                                        type='button'
+                                        onClick={() => handleEditPerson(person)}
+                                        disabled={isCreating}
+                                    >
+                                        Editar
+                                    </button>
                                 </li>
                             ))}
                             {filteredPeople.length === 0 && (
@@ -183,7 +222,7 @@ function PeopleManager() {
                 </section>
 
                 <section className='peopleManagerCreate'>
-                    <h2>Cadastrar pessoa</h2>
+                    <h2>{editingId === null ? 'Cadastrar pessoa' : 'Editar pessoa'}</h2>
                     <form className='peopleManagerCreateForm' onSubmit={handleCreatePerson}>
                         <label htmlFor='personName'>Nome *</label>
                         <input
@@ -277,8 +316,20 @@ function PeopleManager() {
                         )}
 
                         <button className='peopleManagerButton' type='submit' disabled={isCreating}>
-                            {isCreating ? 'Cadastrando...' : 'Cadastrar pessoa'}
+                            {isCreating
+                                ? editingId === null ? 'Cadastrando...' : 'Salvando...'
+                                : editingId === null ? 'Cadastrar pessoa' : 'Salvar alterações'}
                         </button>
+                        {editingId !== null && (
+                            <button
+                                className='peopleManagerButton'
+                                type='button'
+                                onClick={resetPersonForm}
+                                disabled={isCreating}
+                            >
+                                Cancelar edição
+                            </button>
+                        )}
                         {createError && <p className='peopleManagerError' role='alert'>{createError}</p>}
                         {createSuccess && <p className='peopleManagerSuccess' role='status'>{createSuccess}</p>}
                     </form>

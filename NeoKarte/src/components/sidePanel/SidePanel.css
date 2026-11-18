@@ -93,6 +93,44 @@
     padding: 0.75rem;
 }
 
+.eventDetails,
+.eventDescription {
+    width: 100%;
+    overflow-wrap: anywhere;
+    text-align: center;
+}
+
+.eventDetailsItem {
+    padding: 0.5rem;
+}
+
+.eventDetailsItem p,
+.eventDescription p {
+    margin: 0.25rem 0;
+}
+
+.eventImages {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.eventImage {
+    display: block;
+    max-width: 90%;
+    max-height: 30vh;
+    border: solid 3px black;
+    border-radius: 0.75vh;
+    object-fit: contain;
+}
+
+.eventDescription {
+    margin-top: 0.75rem;
+    white-space: pre-wrap;
+}
+
 .leaderPortrait {
     width: 15vh;
     border: solid 5px black;

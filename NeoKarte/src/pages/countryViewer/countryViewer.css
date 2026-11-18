@@ -180,9 +180,47 @@
     cursor: pointer;
 }
 
+.countryViewerCancelButton {
+    align-self: flex-start;
+    padding: 0.6rem 0.85rem;
+    border: 1px solid #6d6555;
+    border-radius: 0.35rem;
+    background-color: #5b5141;
+    color: #fffaf0;
+    cursor: pointer;
+}
+
 .countryViewerSubmitButton:disabled {
     cursor: wait;
     opacity: 0.7;
+}
+
+.countryViewerCancelButton:disabled {
+    cursor: wait;
+    opacity: 0.7;
+}
+
+.countryViewerItemEditButton {
+    align-self: flex-start;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid #8d7a57;
+    border-radius: 0.25rem;
+    background-color: #fffaf0;
+    color: #241b10;
+    cursor: pointer;
+    font: inherit;
+}
+
+.countryViewerItemEditButton:disabled {
+    cursor: wait;
+    opacity: 0.7;
+}
+
+.countryViewerImageEditPreview {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
 }
 
 .countryViewerSuccess {

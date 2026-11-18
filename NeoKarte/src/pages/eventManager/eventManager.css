@@ -39,7 +39,8 @@
 }
 
 .eventManagerSearch input,
-.eventManagerForm input:not([type='checkbox']):not([type='range']) {
+.eventManagerForm input:not([type='checkbox']):not([type='range']),
+.eventManagerForm textarea {
     box-sizing: border-box;
     width: 100%;
     min-width: 0;

@@ -22,6 +22,7 @@ const emptyEvent = {
     end_date: '',
     startdate_approximate: false,
     enddate_approximate: false,
+    description: '',
 };
 
 function getErrorMessage(error) {
@@ -71,7 +72,7 @@ function EventManager() {
 
     const normalizedSearch = search.trim().toLocaleLowerCase();
     const filteredEvents = events.filter((event) =>
-        [event.name, event.location, event.start_date, event.end_date]
+        [event.name, event.location, event.start_date, event.end_date, event.description]
             .some((value) => String(value ?? '').toLocaleLowerCase().includes(normalizedSearch))
     );
     const previewPosition = calculateRelativeDistance(
@@ -106,6 +107,7 @@ function EventManager() {
             end_date: event.end_date ?? '',
             startdate_approximate: Boolean(event.startdate_approximate),
             enddate_approximate: Boolean(event.enddate_approximate),
+            description: event.description ?? '',
         });
         setFormError('');
         setSuccess('');
@@ -140,6 +142,7 @@ function EventManager() {
             end_date: eventForm.end_date || null,
             startdate_approximate: eventForm.startdate_approximate,
             enddate_approximate: eventForm.enddate_approximate,
+            description: eventForm.description.trim(),
         };
 
         if (!eventData.name || !eventData.location) {
@@ -231,11 +234,12 @@ function EventManager() {
                                 <li className="eventManagerItem" key={event.id}>
                                     <div className="eventManagerInfo">
                                         <strong>{event.name}</strong>
-                                        <span>{event.location} · {event.start_date || 'Data não informada'}</span>
+                                        <span>{event.location}, {event.start_date || 'Data não informada'}</span>
                                         <span>
                                             {event.latitude}, {event.longitude}
                                             {event.end_date ? ` · até ${event.end_date}` : ''}
                                         </span>
+                                        <span>{event.description}</span>
                                     </div>
                                     <div className="eventManagerActions">
                                         <button
@@ -337,6 +341,16 @@ function EventManager() {
                             <input name="enddate_approximate" type="checkbox" checked={eventForm.enddate_approximate} onChange={handleFormChange} disabled={isSaving} />
                             Data final aproximada
                         </label>
+
+                        <label htmlFor="eventDescription">Descrição</label>
+                        <textarea
+                            id="eventDescription"
+                            name="description"
+                            rows="4"
+                            value={eventForm.description}
+                            onChange={handleFormChange}
+                            disabled={isSaving}
+                        />
 
                         <div className="eventManagerFormActions">
                             <button className="eventManagerButton" type="submit" disabled={isSaving}>

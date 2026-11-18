@@ -23,6 +23,19 @@ export async function createCountry(country) {
     }
 }
 
+export async function updateCountry(id, country) {
+    try {
+        const response = await apiClient.put(
+            `/countries/${encodeURIComponent(id)}`,
+            { country }
+        );
+        return response.data;
+    } catch (e) {
+        console.error('Erro ao atualizar país: ', e);
+        throw e;
+    }
+}
+
 export async function getCountryById(id) {
     try {
         const response = await apiClient.get(`/countries/${encodeURIComponent(id)}`);
@@ -89,6 +102,19 @@ export async function createPoliticalEra(countryId, politicalEra) {
     }
 }
 
+export async function updatePoliticalEra(id, politicalEra) {
+    try {
+        const response = await apiClient.put(
+            `/political_eras/${encodeURIComponent(id)}`,
+            { political_era: politicalEra }
+        );
+        return response.data;
+    } catch (e) {
+        console.error('Erro ao atualizar era política: ', e);
+        throw e;
+    }
+}
+
 export async function createFlag(flag) {
     try {
         const formData = new FormData();
@@ -105,12 +131,46 @@ export async function createFlag(flag) {
     }
 }
 
+export async function updateFlag(id, flag) {
+    try {
+        const formData = new FormData();
+        formData.append('flag[start_date]', flag.start_date);
+        formData.append('flag[end_date]', flag.end_date);
+        formData.append('flag[political_era_id]', flag.political_era_id);
+        if (flag.image) {
+            formData.append('flag[image]', flag.image);
+        }
+
+        const response = await apiClient.put(
+            `/flags/${encodeURIComponent(id)}`,
+            formData
+        );
+        return response.data;
+    } catch (e) {
+        console.error('Erro ao atualizar bandeira: ', e);
+        throw e;
+    }
+}
+
 export async function createCapital(capital) {
     try {
         const response = await apiClient.post('/capitals', { capital });
         return response.data;
     } catch (e) {
         console.error('Erro ao criar capital: ', e);
+        throw e;
+    }
+}
+
+export async function updateCapital(id, capital) {
+    try {
+        const response = await apiClient.put(
+            `/capitals/${encodeURIComponent(id)}`,
+            { capital }
+        );
+        return response.data;
+    } catch (e) {
+        console.error('Erro ao atualizar capital: ', e);
         throw e;
     }
 }
@@ -125,6 +185,19 @@ export async function createRuler(ruler) {
     }
 }
 
+export async function updateRuler(id, ruler) {
+    try {
+        const response = await apiClient.put(
+            `/rulers/${encodeURIComponent(id)}`,
+            { ruler }
+        );
+        return response.data;
+    } catch (e) {
+        console.error('Erro ao atualizar líder: ', e);
+        throw e;
+    }
+}
+
 export async function createPortrait(portrait) {
     try {
         const formData = new FormData();
@@ -135,6 +208,23 @@ export async function createPortrait(portrait) {
         return response.data;
     } catch (e) {
         console.error('Erro ao criar retrato: ', e);
+        throw e;
+    }
+}
+
+export async function updatePortrait(id, portrait) {
+    try {
+        const formData = new FormData();
+        formData.append('portrait[ruler_id]', portrait.ruler_id);
+        formData.append('portrait[image]', portrait.image);
+
+        const response = await apiClient.put(
+            `/portraits/${encodeURIComponent(id)}`,
+            formData
+        );
+        return response.data;
+    } catch (e) {
+        console.error('Erro ao atualizar retrato: ', e);
         throw e;
     }
 }
@@ -155,6 +245,19 @@ export async function createPerson(person) {
         return response.data;
     } catch (e) {
         console.error('Erro ao criar pessoa: ', e);
+        throw e;
+    }
+}
+
+export async function updatePerson(id, person) {
+    try {
+        const response = await apiClient.put(
+            `/people/${encodeURIComponent(id)}`,
+            { person }
+        );
+        return response.data;
+    } catch (e) {
+        console.error('Erro ao atualizar pessoa: ', e);
         throw e;
     }
 }

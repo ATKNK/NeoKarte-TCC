@@ -5,7 +5,7 @@ import { getAllEvents } from "../../modules/maps/getEvent";
 import { getPoliticalEra } from "../../modules/maps/getCountry";
 import { renderEvent } from "../../modules/maps/renderEvent";
 
-function Map({ year, onCountrySelect }) {
+function Map({ year, onCountrySelect, onEventSelect }) {
     const [events, setEvents] = React.useState([]);
     const key = `../../assets/maps/${year}.svg`;
     const MapComponent = maps[key];
@@ -59,7 +59,7 @@ function Map({ year, onCountrySelect }) {
         <div className="mapMain" onClick={handleClick}>
             <MapComponent />
             <div className="mapEvents" aria-label="Eventos históricos">
-                {events.map(renderEvent)}
+                {events.map((event) => renderEvent(event, onEventSelect))}
             </div>
         </div>
     );

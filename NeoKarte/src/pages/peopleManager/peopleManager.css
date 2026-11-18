@@ -75,6 +75,10 @@
 }
 
 .peopleManagerItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
     padding: 0.6rem;
     border: 1px solid #d7c9a9;
     border-radius: 0.35rem;

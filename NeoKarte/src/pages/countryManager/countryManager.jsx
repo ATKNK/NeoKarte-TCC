@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './countryManager.css';
-import { createCountry, getAllCountries } from '../../modules/maps/getCountry';
+import {
+    createCountry,
+    getAllCountries,
+    updateCountry,
+} from '../../modules/maps/getCountry';
 
 function CountryManager() {
     const [tagSearch, setTagSearch] = useState('');
@@ -9,6 +13,7 @@ function CountryManager() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
     const [newCountry, setNewCountry] = useState({ tag: '', name: '' });
+    const [editingId, setEditingId] = useState(null);
     const [isCreating, setIsCreating] = useState(false);
     const [createError, setCreateError] = useState('');
     const [createSuccess, setCreateSuccess] = useState('');
@@ -47,6 +52,22 @@ function CountryManager() {
         String(country.tag ?? '').toLocaleLowerCase().includes(normalizedTag)
     );
 
+    function handleEditCountry(country) {
+        setEditingId(country.id);
+        setNewCountry({
+            tag: country.tag ?? '',
+            name: country.name ?? country.full_name ?? country.full_name_local ?? '',
+        });
+        setCreateError('');
+        setCreateSuccess('');
+    }
+
+    function resetCountryForm() {
+        setNewCountry({ tag: '', name: '' });
+        setEditingId(null);
+        setCreateError('');
+    }
+
     async function handleCreateCountry(event) {
         event.preventDefault();
         setCreateError('');
@@ -64,9 +85,14 @@ function CountryManager() {
 
         setIsCreating(true);
         try {
-            await createCountry(country);
-            setNewCountry({ tag: '', name: '' });
-            setCreateSuccess(`${country.name} (${country.tag}) was created.`);
+            if (editingId === null) {
+                await createCountry(country);
+                setCreateSuccess(`${country.name} (${country.tag}) was created.`);
+            } else {
+                await updateCountry(editingId, country);
+                setCreateSuccess(`${country.name} (${country.tag}) was updated.`);
+            }
+            resetCountryForm();
 
             try {
                 const updatedCountries = await getAllCountries();
@@ -77,7 +103,7 @@ function CountryManager() {
                 setError('');
             } catch (refreshError) {
                 setCreateError(
-                    `Country created, but the list could not be refreshed: ${
+                    `Country saved, but the list could not be refreshed: ${
                         refreshError instanceof Error ? refreshError.message : 'Unknown error.'
                     }`
                 );
@@ -119,7 +145,17 @@ function CountryManager() {
                                 <li className='countryManagerItem' key={country.id ?? country.tag}>
                                     <span className='countryManagerItemTag'>{country.tag}</span>
                                     <span>{country.name ?? country.full_name ?? country.full_name_local ?? 'Could not get Name'}</span>
-                                    <Link className='countryManagerButton' to={`/countries/${country.id ?? country.tag}`}>Manage</Link>
+                                    <div className='countryManagerActions'>
+                                        <button
+                                            className='countryManagerButton'
+                                            type='button'
+                                            onClick={() => handleEditCountry(country)}
+                                            disabled={isCreating}
+                                        >
+                                            Edit
+                                        </button>
+                                        <Link className='countryManagerButton' to={`/countries/${country.id ?? country.tag}`}>Manage</Link>
+                                    </div>
                                 </li>
                             ))}
                             {filteredCountries.length === 0 && (
@@ -130,7 +166,7 @@ function CountryManager() {
                 </div>
 
                 <div className='countryManagerCreate'>
-                    <h2>Create country</h2>
+                    <h2>{editingId === null ? 'Create country' : 'Edit country'}</h2>
                     <form className='countryManagerCreateForm' onSubmit={handleCreateCountry}>
                         <label htmlFor='countryTag'>Tag:</label>
                         <input
@@ -161,8 +197,20 @@ function CountryManager() {
                             disabled={isCreating}
                         />
                         <button className='countryManagerButton' type='submit' disabled={isCreating}>
-                            {isCreating ? 'Creating...' : 'Create country'}
+                            {isCreating
+                                ? editingId === null ? 'Creating...' : 'Saving...'
+                                : editingId === null ? 'Create country' : 'Save changes'}
                         </button>
+                        {editingId !== null && (
+                            <button
+                                className='countryManagerButton'
+                                type='button'
+                                onClick={resetCountryForm}
+                                disabled={isCreating}
+                            >
+                                Cancel edit
+                            </button>
+                        )}
                         {createError && <p className='countryManagerError' role='alert'>{createError}</p>}
                         {createSuccess && <p className='countryManagerSuccess' role='status'>{createSuccess}</p>}
                     </form>

@@ -7,7 +7,6 @@ const LONGITUDE_SCALE = 20;
 const MERCATOR_CENTER = 1.2;
 const MERCATOR_SCALE = 0.4;
 
-// Cubic Mercator calibration fitted to the fourteen confirmed city reference points.
 const X_CALIBRATION = [
     453.9823629499,
     243.512312178,
@@ -88,7 +87,7 @@ export function calculateRelativeDistance(lat, lon) {
     return { x, y };
 }
 
-export function renderEvent(event) {
+export function renderEvent(event, onEventSelect) {
     if (!event) return null;
 
     const position = calculateRelativeDistance(
@@ -98,16 +97,17 @@ export function renderEvent(event) {
 
     if (!position) return null;
 
-    const label = [event.name, event.location, event.start_date]
+    const label = [event.name, event.location, event.start_date, event.description]
         .filter(Boolean)
         .join(" - ");
 
-    return createElement("span", {
+    return createElement("button", {
+        type: "button",
         key: event.id,
         className: "mapEvent",
-        role: "img",
         "aria-label": label || "Evento histórico",
         title: label || "Evento histórico",
+        onClick: onEventSelect ? () => onEventSelect(event) : undefined,
         style: {
             left: `${position.x}%`,
             top: `${position.y}%`,
