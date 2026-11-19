@@ -4,7 +4,7 @@ import "./Timeline.css";
 import TimelineButton from "./TimelineButton";
 
 function Timeline({ onYearChange }) {
-    const years = [1444, 1453, 1466, 1477, 1482, 1494];
+    const years = [1444, 1453, 1466, 1477, 1482, 1494, 1516, 1526];
 
     const [index, setIndex] = useState(0);
 
