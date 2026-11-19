@@ -1,14 +1,16 @@
 import axios from 'axios';
 
+const apiUrl = 'http://localhost:3000';
+
 const apiClient = axios.create({
-    baseURL: 'http://localhost:3000',
+    baseURL: '/api',
     withCredentials: true,
 });
 
 apiClient.interceptors.request.use(async (config) => {
     const method = config.method?.toLowerCase();
     if (['post', 'put', 'patch', 'delete'].includes(method)) {
-        const csrfResponse = await axios.get('http://localhost:3000/csrf_token', {
+        const csrfResponse = await axios.get(`${apiUrl}/csrf_token`, {
             withCredentials: true,
         });
         const csrfToken = csrfResponse.data?.token;
