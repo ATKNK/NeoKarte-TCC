@@ -14,4 +14,9 @@ export default defineConfig({
     tailwindcss(),
     svgr(),
   ],
+  server: {
+    proxy: {
+      '/api': 'https://localhost:3000',
+    }
+  }
 })
