@@ -1,7 +1,7 @@
 import React from "react";
 import "./Map.css";
 import maps from "../../modules/maps/mapLoader";
-import { getAllEvents } from "../../modules/maps/getEvent";
+import { getEventsByYear } from "../../modules/maps/getEvent";
 import { getPoliticalEra } from "../../modules/maps/getCountry";
 import { renderEvent } from "../../modules/maps/renderEvent";
 
@@ -12,8 +12,9 @@ function Map({ year, onCountrySelect, onEventSelect }) {
 
     React.useEffect(() => {
         let isMounted = true;
+        setEvents([]);
 
-        getAllEvents()
+        getEventsByYear(year)
             .then((data) => {
                 if (!Array.isArray(data)) {
                     throw new TypeError("A resposta de eventos deve ser uma lista.");
@@ -32,7 +33,7 @@ function Map({ year, onCountrySelect, onEventSelect }) {
         return () => {
             isMounted = false;
         };
-    }, []);
+    }, [year]);
 
     async function handleClick(e) {
         const tag = e.target.closest?.(".country[id]")?.id;

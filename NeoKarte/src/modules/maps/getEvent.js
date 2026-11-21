@@ -12,6 +12,18 @@ export async function getAllEvents() {
     }
 }
 
+export async function getEventsByYear(year) {
+    try {
+        const response = await apiClient.get(`${eventsUrl}/show_by_year`, {
+            params: { selected_date: `${year}-11-11` }
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Erro ao ler eventos históricos do ano ${year}: `, error);
+        throw error;
+    }
+}
+
 export async function createEvent(event) {
     try {
         const response = await apiClient.post(eventsUrl, { historical_event: event });

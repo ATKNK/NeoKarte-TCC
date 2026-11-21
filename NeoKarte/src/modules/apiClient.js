@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const apiUrl = 'http://localhost:3000';
+const apiUrl = '/api';
 
 const apiClient = axios.create({
     baseURL: '/api',
@@ -10,9 +10,7 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(async (config) => {
     const method = config.method?.toLowerCase();
     if (['post', 'put', 'patch', 'delete'].includes(method)) {
-        const csrfResponse = await axios.get(`${apiUrl}/csrf_token`, {
-            withCredentials: true,
-        });
+        const csrfResponse = await apiClient.get('/csrf_token');
         const csrfToken = csrfResponse.data?.token;
         if (typeof csrfToken !== 'string' || csrfToken.length === 0) {
             throw new Error('A API não retornou um token CSRF válido em /csrf_token.');
