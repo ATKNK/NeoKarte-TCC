@@ -22,7 +22,7 @@ function Navbar() {
 
     return (
         <nav className='navbarMain'>
-            <p className='navbarTitle'>NeoKarte</p>
+            <a href='/' className='navbarTitle'>NeoKarte</a>
             <div className='navbarButtons'>
                 <Link className='navbarButton' to='/'>Mapa</Link>
                 {status === 'authenticated' && (
